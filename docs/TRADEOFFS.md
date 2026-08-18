@@ -363,9 +363,14 @@ hold.
 30 paired runs per protocol per channel configuration. Reported as mean and sample std (ddof=1).
 Because topologies are paired across protocols, **paired tests (Wilcoxon signed-rank, or a paired
 t-test on FND) are available and are stronger than the unpaired comparison the std alone implies.**
-Currently the pipeline reports mean ± std only; adding paired significance tests and confidence
-intervals is a cheap and worthwhile addition before submission. Note that a censored `lnd` violates
-the assumptions of both tests — use `alive_node_auc` for TEEN/APTEEN.
+`analyze.py` now implements this: a paired sign-flip permutation test (20,000 permutations, add-one
+correction, so the p floor at n=30 is ~5e-5), paired bootstrap CIs (20,000 resamples), and
+Holm–Bonferroni correction across the 9 comparisons within each metric/channel. Permutation was
+chosen over Wilcoxon because it operates on the differences themselves rather than their ranks, and
+over a paired t-test because it assumes only exchangeability (GCN's FND differences are bimodal).
+Validated against exact enumeration on a reduced sample: exact p = 0.00391 vs sampled 0.00420.
+Note that a censored `lnd` violates the assumptions of any of these tests — use `alive_node_auc`
+for TEEN/APTEEN.
 
 ### C7. Results are deliberately not calibrated to the source paper
 
