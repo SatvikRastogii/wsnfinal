@@ -404,6 +404,15 @@ class NSGA2Protocol(Protocol):
 
     @staticmethod
     def _write_convergence_log(rows):
+        # This write is a side effect of running the protocol at all, and it
+        # targets a fixed path. Any sweep that runs NSGA-II under a NON-headline
+        # configuration (different N, field size, or BS placement) would
+        # therefore overwrite the production-scale validation artifact with one
+        # the paper never intended to cite. scripts/scale_sweep.py sets this
+        # variable for exactly that reason; regenerate the real artifact with
+        # scripts/generate_nsga2_convergence.py.
+        if os.environ.get("WSN_SUPPRESS_VALIDATION_WRITE"):
+            return
         os.makedirs(_RESULTS_VALIDATION_DIR, exist_ok=True)
         path = os.path.join(_RESULTS_VALIDATION_DIR, "nsga2_convergence.csv")
         fieldnames = ["generation", "knee_f1", "knee_f2", "knee_f3", "best_f1", "best_f2", "best_f3"]

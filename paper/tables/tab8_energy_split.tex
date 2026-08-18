@@ -1,0 +1,20 @@
+\begin{table}[!t]
+\caption{Where the energy goes and where the heads sit, measured by the engine's own accounting categories (seed 0, 1100 rounds). Packet error is near zero below 120~m, so the \emph{mean} head distance cannot explain the retry gap --- every mean is below that. The tail can: across the six single-hop protocols, the share of head-rounds beyond 120~m predicts retry energy share with $r = 0.95$. PEGASIS is the exception that proves the rule: its leader rotates uniformly and 30\% of leader-rounds sit beyond 120~m, yet it retries barely at all, because only the leader ever faces the sink.}
+\label{tab:energy-split}
+\centering
+\begin{tabular}{lrrrrr}
+\toprule
+Protocol & Retry & Control & \multicolumn{2}{c}{Head-to-sink (m)} & Heads $>$120 m \\
+\cmidrule(lr){4-5}
+ & (\%) & (\%) & mean & p90 & (\% of rounds) \\
+\midrule
+LEACH & 6.39 & 12.73 & 102.1 & 143.5 & 29.9 \\
+PEGASIS & 1.39 & 4.38 & 102.2 & 143.5 & 30.0 \\
+SOM & 5.28 & 2.38 & 102.8 & 136.4 & 31.1 \\
+NSGA-II & 3.57 & 2.46 & 94.2 & 127.5 & 17.7 \\
+Fuzzy T2 & 3.65 & 2.33 & 85.6 & 122.1 & 11.5 \\
+DQN & 2.31 & 3.95 & 81.1 & 111.2 & 5.1 \\
+GCN & 2.25 & 3.85 & 77.1 & 104.6 & 3.2 \\
+\bottomrule
+\end{tabular}
+\end{table}

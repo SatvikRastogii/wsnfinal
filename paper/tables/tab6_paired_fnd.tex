@@ -1,0 +1,22 @@
+\begin{table*}[!t]
+\caption{First-node-death difference against LEACH, in rounds, under both channel configurations. Paired sign-flip permutation test (20\,000 permutations) with paired-bootstrap confidence intervals, Holm-corrected across the nine comparisons within each channel. \textbf{Fuzzy T2 and DQN are significant under loss and not significant without it} --- the study's central negative result.}
+\label{tab:paired-fnd}
+\centering
+\begin{tabular}{lrcrrcr}
+\toprule
+& \multicolumn{3}{c}{Lossy channel} & \multicolumn{3}{c}{Ideal channel} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Protocol & $\Delta$FND & 95\% CI & $p_{\mathrm{Holm}}$ & $\Delta$FND & 95\% CI & $p_{\mathrm{Holm}}$ \\
+\midrule
+Direct (no clustering) & -932 & [-944, -919] & 0.0004 & -1,153 & [-1,162, -1,144] & 0.0004 \\
+PEGASIS & +542 & [+418, +647] & 0.0004 & +188 & [+78, +293] & 0.0090 \\
+TEEN & +1,163 & [+1,109, +1,217] & 0.0004 & +2,593 & [+2,542, +2,647] & 0.0004 \\
+APTEEN & +1,099 & [+1,055, +1,143] & 0.0004 & +2,434 & [+2,392, +2,480] & 0.0004 \\
+NSGA-II & +827 & [+811, +844] & 0.0004 & +482 & [+471, +493] & 0.0004 \\
+Fuzzy T2 & +417 & [+393, +440] & 0.0004 & +17 & [+0, +34] & 0.1195 \\
+SOM & -87 & [-135, -41] & 0.0015 & -399 & [-443, -357] & 0.0004 \\
+DQN & +426 & [+404, +450] & 0.0004 & +22 & [-4, +49] & 0.1244 \\
+GCN & -710 & [-764, -660] & 0.0004 & -1,140 & [-1,193, -1,090] & 0.0004 \\
+\bottomrule
+\end{tabular}
+\end{table*}

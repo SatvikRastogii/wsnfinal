@@ -1,0 +1,21 @@
+\begin{table*}[!t]
+\caption{The ten configurations compared. ``Control model'' determines which setup messages are charged: distributed protocols pay advertisement, join and schedule; the chain protocol pays a hop-by-hop token; centralized protocols pay only the downlink schedule, their uplink state being piggybacked on data traffic (Section~\ref{sec:validity}).}
+\label{tab:taxonomy}
+\centering
+\begin{tabular}{llllll}
+\toprule
+Protocol & Gen. & Head-selection rule & Control model & Re-cluster & Offline train \\
+\midrule
+Direct (no clustering) & -- & None & None & -- & No \\
+LEACH & G1 & Randomised rotation & Distributed & Every round & No \\
+PEGASIS & G1 & Greedy chain & Chain & On death & No \\
+TEEN & G1 & LEACH + hard/soft threshold & Distributed & Every round & No \\
+APTEEN & G1 & TEEN + count-down timer & Distributed & Every round & No \\
+NSGA-II & G2 & Multi-objective search (3 obj.) & Centralized & Every 5 rounds & No \\
+Fuzzy T2 & G2 & Interval type-2 rule base (27 rules) & Centralized & Every round & No \\
+SOM & G3 & Self-organising map & Centralized & Every round & Yes \\
+DQN & G3 & Learned $Q$-value ranking & Centralized & Every round & Yes (frozen) \\
+GCN & G3 & Learned graph scoring & Centralized & Every round & Yes (frozen) \\
+\bottomrule
+\end{tabular}
+\end{table*}

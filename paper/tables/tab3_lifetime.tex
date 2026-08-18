@@ -1,0 +1,23 @@
+\begin{table}[!t]
+\caption{Lifetime, lossy channel, 30 paired runs (mean $\pm$ sample std, rounds). FND/HND/LND are first, half and last node death. AUC is the area under the living-node curve, the censoring-robust survival measure.}
+\label{tab:lifetime}
+\centering
+\begin{tabular}{llrrrr}
+\toprule
+Protocol & Gen. & FND & HND & LND & AUC ($\times 10^3$) \\
+\midrule
+Direct (no clustering) & -- & 114 $\pm$ 11 & 1,144 $\pm$ 183 & 3,202 $\pm$ 78 & 132.0 \\
+LEACH & G1 & 1,046 $\pm$ 43 & 1,679 $\pm$ 25 & 2,191 $\pm$ 81 & 167.1 \\
+PEGASIS & G1 & 1,588 $\pm$ 331 & 2,199 $\pm$ 9 & 2,630 $\pm$ 358 & 216.4 \\
+TEEN & G1 & 2,208 $\pm$ 164 & 5,601 $\pm$ 189 & $>$6,999\textsuperscript{c} & 535.4 \\
+APTEEN & G1 & 2,144 $\pm$ 139 & 5,367 $\pm$ 161 & $>$6,999\textsuperscript{c} & 518.4 \\
+NSGA-II & G2 & 1,873 $\pm$ 31 & 1,965 $\pm$ 23 & 2,697 $\pm$ 256 & 200.6 \\
+Fuzzy T2 & G2 & 1,462 $\pm$ 50 & 2,006 $\pm$ 28 & 2,109 $\pm$ 48 & 191.9 \\
+SOM & G3 & 959 $\pm$ 127 & 1,998 $\pm$ 32 & 2,874 $\pm$ 115 & 196.8 \\
+DQN & G3 & 1,472 $\pm$ 55 & 1,920 $\pm$ 31 & 2,325 $\pm$ 59 & 192.1 \\
+GCN & G3 & 335 $\pm$ 142 & 1,824 $\pm$ 70 & 3,185 $\pm$ 142 & 180.2 \\
+\bottomrule
+\end{tabular}
+
+{\footnotesize \textsuperscript{c} Censored: the network had not died at the 7000-round cap in any run. Use AUC, not LND, for these two.\par}
+\end{table}

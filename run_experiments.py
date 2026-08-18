@@ -104,6 +104,8 @@ def main():
     ap.add_argument("--runs", type=int, default=30)
     ap.add_argument("--rounds", type=int, default=None)
     ap.add_argument("--nodes", type=int, default=None)
+    ap.add_argument("--field", type=float, default=None, help="square field side in metres")
+    ap.add_argument("--bs", default=None, help="base station as 'x,y' in metres")
     ap.add_argument("--channel", choices=["lossy", "ideal", "both"], default="lossy")
     ap.add_argument("--out", default="results")
     ap.add_argument("--jobs", type=int, default=max(1, (os.cpu_count() or 2) - 2))
@@ -118,6 +120,12 @@ def main():
         base["n_nodes"] = args.nodes
     if args.rounds is not None:
         base["max_rounds"] = args.rounds
+    if args.field is not None:
+        base["field_w"] = args.field
+        base["field_h"] = args.field
+    if args.bs is not None:
+        bx, by = (float(v) for v in args.bs.split(","))
+        base["bs_x"], base["bs_y"] = bx, by
 
     channels = ["lossy", "ideal"] if args.channel == "both" else [args.channel]
     for ch in channels:

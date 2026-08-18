@@ -1,0 +1,34 @@
+\begin{table}[!t]
+\caption{Survival and delivery differences against LEACH under both channels. Unlike first node death (Table~\ref{tab:paired-fnd}), every one of these gaps holds in both configurations, so these are the conclusions the study can state without a channel caveat.}
+\label{tab:paired-robust}
+\centering
+\begin{tabular}{lrrrr}
+\toprule
+& \multicolumn{2}{c}{Lossy} & \multicolumn{2}{c}{Ideal} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Protocol & $\Delta$ ($\times 10^3$) & $p_{\mathrm{Holm}}$ & $\Delta$ ($\times 10^3$) & $p_{\mathrm{Holm}}$ \\
+\midrule
+\multicolumn{5}{l}{\textit{AUC}} \\
+\quad Direct (no clustering) & -35.1 & 0.0004 & -32.8 & 0.0004 \\
+\quad PEGASIS & +49.2 & 0.0004 & +44.5 & 0.0004 \\
+\quad TEEN & +368.3 & 0.0004 & +389.6 & 0.0004 \\
+\quad APTEEN & +351.3 & 0.0004 & +371.7 & 0.0004 \\
+\quad NSGA-II & +33.5 & 0.0004 & +31.7 & 0.0004 \\
+\quad Fuzzy T2 & +24.8 & 0.0004 & +22.1 & 0.0004 \\
+\quad SOM & +29.7 & 0.0004 & +29.2 & 0.0004 \\
+\quad DQN & +25.0 & 0.0004 & +22.5 & 0.0004 \\
+\quad GCN & +13.1 & 0.0004 & +11.1 & 0.0004 \\
+\addlinespace
+\multicolumn{5}{l}{\textit{Readings}} \\
+\quad Direct (no clustering) & -18.5 & 0.0004 & -31.8 & 0.0004 \\
+\quad PEGASIS & +35.6 & 0.0004 & +44.2 & 0.0004 \\
+\quad TEEN & -88.1 & 0.0004 & -106.0 & 0.0004 \\
+\quad APTEEN & -84.0 & 0.0004 & -101.3 & 0.0004 \\
+\quad NSGA-II & +33.2 & 0.0004 & +32.2 & 0.0004 \\
+\quad Fuzzy T2 & +28.8 & 0.0004 & +22.4 & 0.0004 \\
+\quad SOM & +29.2 & 0.0004 & +29.3 & 0.0004 \\
+\quad DQN & +26.9 & 0.0004 & +22.5 & 0.0004 \\
+\quad GCN & +16.2 & 0.0004 & +9.8 & 0.0004 \\
+\bottomrule
+\end{tabular}
+\end{table}

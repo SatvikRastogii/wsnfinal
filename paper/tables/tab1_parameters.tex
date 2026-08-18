@@ -1,0 +1,52 @@
+\begin{table}[!t]
+\caption{Simulation parameters. Every value is read from the single frozen configuration object used by all ten protocols; nothing is protocol-specific.}
+\label{tab:parameters}
+\centering
+\begin{tabular}{ll}
+\toprule
+Parameter & Value \\
+\midrule
+\multicolumn{2}{l}{\textit{Topology and energy}} \\
+\quad Nodes $N$ & 100 \\
+\quad Field & 100 $\times$ 100 m \\
+\quad Base station & $(50, 150)$ m \\
+\quad Initial energy $E_0$ & 1.0 J per node \\
+\quad Rounds (cap) & 7,000 \\
+\quad Runs per configuration & 30 \\
+\addlinespace
+\multicolumn{2}{l}{\textit{Packets}} \\
+\quad Data packet & 4,000 bits \\
+\quad Control packet & 200 bits \\
+\addlinespace
+\multicolumn{2}{l}{\textit{Radio (first-order model)}} \\
+\quad $E_{\mathrm{elec}}$ & 50 nJ/bit \\
+\quad $\varepsilon_{\mathrm{fs}}$ & 10 pJ/bit/m$^2$ \\
+\quad $\varepsilon_{\mathrm{mp}}$ & 0.0013 pJ/bit/m$^4$ \\
+\quad $E_{\mathrm{DA}}$ (fusion) & 5 nJ/bit \\
+\quad Crossover $d_0$ & 87.7 m \\
+\addlinespace
+\multicolumn{2}{l}{\textit{Channel}} \\
+\quad Transmit power $P_t$ & 12 dBm \\
+\quad Path loss at 1 m & 40 dB \\
+\quad Path-loss exponent $n$ & 3.0 \\
+\quad Shadowing $\sigma$ & 4 dB \\
+\quad Noise floor & -105 dBm \\
+\quad ARQ retransmissions & 2 \\
+\addlinespace
+\multicolumn{2}{l}{\textit{Sensed data (Ornstein--Uhlenbeck)}} \\
+\quad Mean $\mu$, reversion $\theta$ & 50, 0.05 \\
+\quad Step $\sigma$ & 2.0 \\
+\quad TEEN/APTEEN $H_T$, $S_T$, $T_C$ & 55, 1.0, 50 rounds \\
+\addlinespace
+\multicolumn{2}{l}{\textit{Protocol-agnostic}} \\
+\quad Head fraction $p$ & 0.05 \\
+\quad Density radius & 25 m \\
+\quad NSGA-II population, generations & 40, 30 \\
+\quad Re-clustering interval & 5 rounds \\
+\addlinespace
+\multicolumn{2}{l}{\textit{Timing}} \\
+\quad Bit rate & 250 kbps \\
+\quad Slot / guard / processing & 20 / 4 / 1 ms \\
+\bottomrule
+\end{tabular}
+\end{table}

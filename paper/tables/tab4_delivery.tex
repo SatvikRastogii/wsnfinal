@@ -1,0 +1,22 @@
+\begin{table}[!t]
+\caption{Delivery, lossy channel. Packets at the base station measure aggregation depth, not delivery, and are not comparable across protocols; readings delivered and data yield are. Data yield is readings arriving at the sink divided by readings taken, so it is the column that prices TEEN and APTEEN's suppression.}
+\label{tab:delivery}
+\centering
+\begin{tabular}{llrrrr}
+\toprule
+Protocol & Gen. & Packets at BS & Readings & PDR (\%) & Data yield \\
+ & & ($\times 10^3$) & delivered ($\times 10^3$) & & \\
+\midrule
+Direct (no clustering) & -- & 128.1 & 128.1 & 96.9 & 0.970 \\
+LEACH & G1 & 11.0 & 146.6 & 87.7 & 0.877 \\
+PEGASIS & G1 & 2.3 & 182.2 & 84.2 & 0.842 \\
+TEEN & G1 & 21.2 & 58.6 & 90.8 & 0.109 \\
+APTEEN & G1 & 21.5 & 62.6 & 90.8 & 0.121 \\
+NSGA-II & G2 & 9.7 & 179.9 & 89.6 & 0.896 \\
+Fuzzy T2 & G2 & 9.1 & 175.4 & 91.4 & 0.914 \\
+SOM & G3 & 9.4 & 175.8 & 89.3 & 0.893 \\
+DQN & G3 & 9.0 & 173.5 & 90.3 & 0.903 \\
+GCN & G3 & 8.6 & 162.8 & 90.3 & 0.903 \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,22 @@
+\begin{table*}[!t]
+\caption{Cost, lossy channel. Counted operations are the honest cross-protocol comparison; wall-clock setup time reflects implementation quality as much as algorithm design and is reported separately for that reason. DQN and GCN setup times are inference only: their one-off offline training is not included here (Section~\ref{sec:validity}).}
+\label{tab:cost}
+\centering
+\begin{tabular}{llrrrrrr}
+\toprule
+Protocol & Gen. & Latency & p95 & Control pkts & Ops per & Setup & Peak mem \\
+ & & (ms) & (ms) & ($\times 10^3$) & round & (ms) & (MB) \\
+\midrule
+Direct (no clustering) & -- & 600 & 1,488 & 0.0 & 0 & 0.00 & 6.0 \\
+LEACH & G1 & 274 & 837 & 171.6 & 329 & 0.82 & 1.7 \\
+PEGASIS & G1 & 1,045 & 1,626 & 213.9 & 59 & 0.05 & 1.5 \\
+TEEN & G1 & 419 & 990 & 573.9 & 307 & 0.83 & 5.1 \\
+APTEEN & G1 & 407 & 979 & 554.3 & 296 & 0.80 & 5.1 \\
+NSGA-II & G2 & 387 & 573 & 10.8 & 86,348 & 102.89 & 2.1 \\
+Fuzzy T2 & G2 & 401 & 1,028 & 9.7 & 2,301 & 5.14 & 1.6 \\
+SOM & G3 & 388 & 538 & 10.7 & 6,194 & 38.28 & 2.0 \\
+DQN & G3 & 402 & 918 & 11.9 & 8,210 & 0.52 & 1.7 \\
+GCN & G3 & 392 & 981 & 12.2 & 5,454 & 0.88 & 2.3 \\
+\bottomrule
+\end{tabular}
+\end{table*}

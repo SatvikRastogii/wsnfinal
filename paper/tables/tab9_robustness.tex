@@ -1,0 +1,15 @@
+\begin{table}[!t]
+\caption{Every ranking that moves when the channel changes: 4 of 40 protocol--metric ranks. All are single-place swaps between adjacent protocols. Ordering is therefore stable; it is the \emph{significance} of specific first-node-death gaps that is not (Table~\ref{tab:paired-fnd}).}
+\label{tab:robustness}
+\centering
+\begin{tabular}{llrrr}
+\toprule
+Metric & Protocol & Lossy rank & Ideal rank & Shift \\
+\midrule
+hnd & Fuzzy T2 & 4 & 5 & +1 \\
+hnd & SOM & 5 & 4 & -1 \\
+readings\_delivered\_total & Fuzzy T2 & 4 & 5 & +1 \\
+readings\_delivered\_total & DQN & 5 & 4 & -1 \\
+\bottomrule
+\end{tabular}
+\end{table}
