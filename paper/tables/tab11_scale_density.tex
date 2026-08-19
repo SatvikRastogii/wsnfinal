@@ -1,0 +1,22 @@
+\begin{table}[!t]
+\caption{Cells ordered by node density. If density drove lifetime the rows would trend with it; they do not --- the numbers track the mean sink distance column instead. Averaged over all ten protocols, tripling the node count changes first node death by a factor of 0.88--1.26, while tripling the field side changes it by a factor of 5--7. The two cells closest in density (50 and 44 nodes/ha) differ by 1.7$\times$ for NSGA-II, 2.1$\times$ for LEACH and 5.5$\times$ for direct transmission. Note also that \emph{clustering only pays once the sink is far}: in the $50\times50$~m rows the no-clustering baseline outlives LEACH.}
+\label{tab:scale-density}
+\centering
+\begin{tabular}{llrrrrr}
+\toprule
+$N$ & Field (m) & Density & Mean sink & \multicolumn{3}{c}{First node death (rounds)} \\
+\cmidrule(lr){5-7}
+ & & (nodes/ha) & dist.\ (m) & Direct & LEACH & NSGA-II \\
+\midrule
+50 & 150$\times$150 & 22 & 156 & 23 & 155 & 717 \\
+100 & 150$\times$150 & 44 & 156 & 22 & 303 & 1,052 \\
+50 & 100$\times$100 & 50 & 104 & 120 & 641 & 1,818 \\
+150 & 150$\times$150 & 67 & 156 & 22 & 354 & 1,077 \\
+100 & 100$\times$100 & 100 & 104 & 112 & 1,034 & 1,872 \\
+150 & 100$\times$100 & 150 & 104 & 111 & 1,085 & 1,865 \\
+50 & 50$\times$50 & 200 & 52 & 2,178 & 1,791 & 2,184 \\
+100 & 50$\times$50 & 400 & 52 & 1,943 & 1,617 & 2,173 \\
+150 & 50$\times$50 & 600 & 52 & 1,677 & 1,586 & 2,160 \\
+\bottomrule
+\end{tabular}
+\end{table}

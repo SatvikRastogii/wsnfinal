@@ -419,7 +419,7 @@ Do **not** compress: Table I, Section VII (mechanism), the retraction, or Sectio
 | Sections I, III, IV, V, VI, IX, X | **Drafted in conversation at 6–7 page length**, not yet written to `.tex`. Need expanding to the budget above and committing to files with `\cite{}` inserted. |
 | Section II (Related Work) | **Not written** — new at 12 pages. Needs Table A built by hand from the cited papers. |
 | Section VII (Mechanism) | **Not written** — new at 12 pages. Data exists in `results/analysis/energy_probe.csv`. |
-| Section VIII (Scale) | **Not written** — see `docs/AREA_AND_NODE_COMPARISON.md`. |
+| Section VIII (Scale) | **Not written**, but the sweep is done and analysed — 1,350 runs, all findings written up in `docs/AREA_AND_NODE_COMPARISON.md` §4, tables and figures generated. |
 | Abstract | Not written. |
 
 ### Before submitting — checklist
@@ -433,6 +433,7 @@ Do **not** compress: Table I, Section VII (mechanism), the retraction, or Sectio
 - [ ] TEEN/APTEEN lifetime never quoted without their data yield alongside
 - [ ] TEEN/APTEEN lifetime uses `alive_node_auc`, never the censored `lnd`
 - [ ] Section VIII states that cross-cell comparisons are not paired and are not tested as if they were
+- [ ] Section VIII reports that two of its five pre-registered predictions were wrong
 - [ ] Section IX names the two experiments not run (control-traffic ablation, power sweep)
 - [ ] The four `% VERIFY` bib entries checked against publisher records
 - [ ] Page count is 12 or fewer with references

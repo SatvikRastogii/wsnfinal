@@ -1,0 +1,25 @@
+\begin{table*}[!t]
+\caption{First node death (rounds) across node counts and field areas, lossy channel, 15 paired runs per cell.}
+\label{tab:scale-fnd}
+\centering
+\begin{tabular}{llrrrrrrrrr}
+\toprule
+  &   & \multicolumn{3}{c}{50$\times$50 m} & \multicolumn{3}{c}{100$\times$100 m} & \multicolumn{3}{c}{150$\times$150 m} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}\cmidrule(lr){9-11}
+Protocol & Gen. & $N{=}50$ & $N{=}100$ & $N{=}150$ & $N{=}50$ & $N{=}100$ & $N{=}150$ & $N{=}50$ & $N{=}100$ & $N{=}150$ \\
+\midrule
+Direct (no clustering) & -- & 2,178 & 1,943 & 1,677 & 120 & 112 & 111 & 23 & 22 & 22 \\
+LEACH & G1 & 1,791 & 1,617 & 1,586 & 641 & 1,034 & 1,085 & 155 & 303 & 354 \\
+PEGASIS & G1 & 2,097 & 2,114 & 2,062 & 1,550 & 1,610 & 1,517 & 663 & 815 & 720 \\
+TEEN & G1 & 6,808 & 5,899 & 5,186 & 2,028 & 2,201 & 2,064 & 425 & 550 & 532 \\
+APTEEN & G1 & 6,831 & 5,684 & 5,002 & 1,947 & 2,141 & 1,992 & 427 & 519 & 527 \\
+NSGA-II & G2 & 2,184 & 2,173 & 2,160 & 1,818 & 1,872 & 1,865 & 717 & 1,052 & 1,077 \\
+Fuzzy T2 & G2 & 1,656 & 1,685 & 1,698 & 1,379 & 1,454 & 1,470 & 381 & 393 & 577 \\
+SOM & G3 & 1,382 & 1,280 & 1,296 & 1,153 & 965 & 994 & 591 & 342 & 328 \\
+DQN & G3 & 1,500 & 1,628 & 1,677 & 1,296 & 1,478 & 1,537 & 454 & 559 & 833 \\
+GCN & G3 & 200 & 208 & 138 & 152 & 371 & 305 & 71 & 158 & 82 \\
+\bottomrule
+\end{tabular}
+
+{\footnotesize The base station scales with the field at $(W/2,\,1.5W)$, so field size sets channel severity as well as area. Node-to-sink distance by field size --- 50$\times$50~m: mean 52~m, 0\% of nodes beyond 120~m; 100$\times$100~m: mean 104~m, 33\% of nodes beyond 120~m; 150$\times$150~m: mean 156~m, 75\% of nodes beyond 120~m. At $50\times50$~m no link reaches the error waterfall at all, which is why the advantage of the optimized and learned protocols over LEACH collapses there.\par}
+\end{table*}

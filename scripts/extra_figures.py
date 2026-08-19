@@ -214,7 +214,17 @@ def fig_scale() -> None:
     sides = sorted(df["field_side"].unique())
     show = [p for p in ORDER if p in set(df["protocol"])]
 
-    fig, axes = plt.subplots(1, len(sides), figsize=(7.0, 2.4), sharey=True)
+    # Log y: first node death spans 22 to 6831 rounds across the grid, so a
+    # linear shared axis renders the 150x150 panel as a flat line at the
+    # bottom. Each protocol gets its own line style within its generation
+    # colour, because ten lines in four colours cannot be told apart.
+    styles = {}
+    for gen_members in (["leach", "pegasis", "teen", "apteen"],
+                        ["nsga2", "fuzzy_t2"], ["som", "dqn", "gcn"], ["stub"]):
+        for k, p in enumerate(gen_members):
+            styles[p] = ["-", "--", ":", "-."][k % 4]
+
+    fig, axes = plt.subplots(1, len(sides), figsize=(7.2, 2.6), sharey=True)
     axes = np.atleast_1d(axes)
     for ax, side in zip(axes, sides):
         sub = df[df["field_side"] == side]
@@ -222,15 +232,15 @@ def fig_scale() -> None:
             s = sub[sub["protocol"] == p].sort_values("n_nodes")
             if len(s) < 2:
                 continue
-            ax.plot(s["n_nodes"], s["fnd_mean"], marker="o", ms=3.5, lw=1.2,
-                    color=GEN_COLOR[p], alpha=0.85,
-                    ls={"G1": "-", "G2": "--", "G3": ":"}.get(
-                        "G1" if p in ("leach", "pegasis", "teen", "apteen") else
-                        "G2" if p in ("nsga2", "fuzzy_t2") else "G3", "-"))
+            ax.plot(s["n_nodes"], s["fnd_mean"], marker="o", ms=3.5, lw=1.3,
+                    color=GEN_COLOR[p], alpha=0.9, ls=styles[p], label=NAMES[p])
+        ax.set_yscale("log")
         ax.set_title(f"{int(side)}$\\times${int(side)} m", fontsize=8)
         ax.set_xlabel("Nodes $N$")
         ax.set_xticks(sorted(sub["n_nodes"].unique()))
-    axes[0].set_ylabel("First node death (rounds)")
+    axes[0].set_ylabel("First node death\n(rounds, log scale)")
+    axes[-1].legend(frameon=False, fontsize=6, loc="center left",
+                    bbox_to_anchor=(1.02, 0.5))
     os.makedirs(OUT, exist_ok=True)
     fig.savefig(os.path.join(OUT, "figD_scale_fnd.png"))
     plt.close(fig)
@@ -239,7 +249,7 @@ def fig_scale() -> None:
     fig, ax = plt.subplots(figsize=(3.4, 2.5))
     for p in show:
         s = df[df["protocol"] == p].sort_values("density_per_ha")
-        ax.plot(s["density_per_ha"], s["fnd_mean"], marker="o", ms=3, lw=1.0,
+        ax.plot(s["density_per_ha"], s["fnd_mean"], marker="o", ms=3, lw=1.0, ls=styles[p],
                 color=GEN_COLOR[p], alpha=0.8, label=NAMES[p])
     ax.set_xscale("log")
     ax.set_xlabel("Node density (nodes/ha, log scale)")

@@ -3,9 +3,9 @@
 The scale study: how the ten protocols behave as node count and field area change. Read this to get
 the gist without opening a CSV.
 
-**Status: sweep running.** Design and paper-integration guidance below are final. The Results
-section is filled in from `results/scale/scale_aggregate.csv` when the run completes; regenerate
-with `python scripts/scale_sweep.py --runs 15 --skip-existing`.
+**Status: complete.** 1,350 runs, 3.7 hours on 14 cores. Source data is
+`results/scale/scale_aggregate.csv`; regenerate with
+`python scripts/scale_sweep.py --runs 15 --skip-existing`.
 
 ---
 
@@ -20,9 +20,14 @@ A full 3 x 3 grid, lossy channel only, 15 paired runs per cell — 1,350 runs.
 | **N = 150** | 600 nodes/ha | 150 nodes/ha | 67 nodes/ha |
 
 The grid is deliberately full rather than a cross. Node count and area jointly determine *density*,
-and only a full grid can tell you which of the three actually drives an effect — cells with the same
-density but different absolute size (e.g. 50 nodes in 50x50 at 200/ha vs 200 nodes in 100x100)
-separate "more neighbours" from "more ground".
+and only a full grid can vary each independently and see which one an effect follows.
+
+One honest caveat about the grid as built: **no two cells share the same density exactly.** The
+closest pair is 50 nodes/ha (N=50, 100x100) against 44 nodes/ha (N=100, 150x150), and that pair does
+the disambiguating work in Section 4.1. A grid designed specifically to hold density constant would
+have needed cells like N=225 at 150x150; that was not run. The conclusion still holds comfortably,
+because the effect sizes along the two axes differ by roughly a factor of five, but it rests on a
+near-match rather than an exact one.
 
 Everything else is unchanged from the headline study: E0 = 1 J, 4000-bit data packets, 200-bit
 control packets, p = 0.05, 7000-round cap, same radio constants, same thresholds.
@@ -41,8 +46,10 @@ stays geometrically self-similar.
 >
 > The alternative — holding the sink a fixed 50 m outside the field — would have held channel
 > severity closer to constant but broken geometric similarity. Neither choice is free. This one was
-> taken deliberately; the mean head-to-sink distance is reported per cell so a reader can separate
-> the two effects rather than having to trust that they are separable.
+> taken deliberately, and the coupling is quantified rather than hand-waved: mean node-to-sink
+> distance is 52 / 104 / 156 m at the three field sizes, and the share of nodes past the 120 m error
+> threshold is 0% / 33% / 75%. Those figures are printed in the note under Table X so a reader can
+> attribute the area effect themselves.
 
 **`density_radius` scales with the field (0.25 x W): 12.5 / 25 / 37.5 m.** This is the "local
 neighbourhood" feature that NSGA-II, the fuzzy system, SOM, DQN and GCN all read. Held fixed at
@@ -66,30 +73,131 @@ were. Only within-cell comparisons are paired.
 
 ## 3. What to expect, and what would be surprising
 
-Stated in advance so the results are read rather than rationalised:
+Stated in advance so the results are read rather than rationalised. Outcomes added after the fact:
 
-- **Smaller field should lengthen every lifetime**, because transmit energy falls with d^2 and the
-  sink hop shrinks. If a protocol does *not* improve at 50x50, that is interesting.
-- **The gap between generations should narrow at 50x50.** The measured skill of the gen-2/gen-3
-  protocols is keeping the head-to-sink hop inside free space; when every hop is already inside free
-  space there is nothing left to win. This is the same mechanism as the ideal-channel retraction, so
-  the 50x50 column is effectively a *second, independent* test of it — which makes it valuable.
-- **The gap should widen at 150x150**, for the same reason in reverse.
-- **Higher density should help clustering and hurt direct transmission**, since more neighbours means
-  more readings fused into each packet.
-- **DQN and GCN may degrade away from N=100 / 100x100.** Expected; label as transfer.
+| Prediction | Outcome |
+|---|---|
+| Smaller field lengthens every lifetime, because transmit energy falls with d^2. | **Confirmed**, and larger than expected: tripling the field side costs a factor of 5-7. |
+| The gap between generations narrows at 50x50, because the gen-2/gen-3 skill is keeping the sink hop inside free space and there is nothing to win when every hop already is. A second, independent test of the ideal-channel retraction. | **Confirmed, strongly.** DQN's advantage over LEACH falls from +444 to +10 rounds; fuzzy T2's from +419 to +68. At N=50 both go negative. |
+| The gap widens at 150x150, for the same reason in reverse. | **Wrong.** It narrows there too (DQN +257, fuzzy +91). Past a point the sink hop is bad for everyone and head placement cannot rescue it. The gap is largest in the *middle*, at 100x100. |
+| Higher density helps clustering and hurts direct transmission. | **Wrong / negligible.** Density is nearly irrelevant next to field size (factor 0.88-1.26 against 5-7). |
+| DQN and GCN may degrade away from N=100 / 100x100. | **Not observed.** Neither collapses; GCN's deficit actually shrinks as the field grows. |
+
+Two of five predictions were wrong. Both wrong ones are reported above rather than quietly dropped,
+and the non-monotonic gap in row 3 is the more interesting result of the two.
 
 ## 4. Results
 
-*(Pending sweep completion. Populated from `results/scale/scale_aggregate.csv`.)*
+Complete: 1,350 runs in 3.7 hours on 14 cores. Source `results/scale/scale_aggregate.csv`.
 
-Tables generated by `python scripts/make_tables.py --scale`:
-- `paper/tables/tab10_scale_fnd.tex` — first node death across all nine cells
-- `paper/tables/tab11_scale_density.tex` — density against LEACH and best-of-G2/G3
+**Correctness check first.** The centre cell (N=100, 100x100) is byte-identical to runs 0-14 of the
+headline study for all ten protocols, on both FND and AUC. The sweep pipeline reproduces the main
+experiment exactly.
 
-Figures generated by `python scripts/extra_figures.py`:
-- `results/analysis/figures_paper/figD_scale_fnd.png` — FND vs N, one panel per field size
+### 4.1 Area dominates node count by roughly five to one
+
+Geometric mean over all ten protocols of the change in first node death:
+
+| Change | Effect on FND |
+|---|---|
+| Triple the node count (50 -> 150), field fixed | x0.88 to x1.26 |
+| Triple the field side (50 -> 150 m), N fixed | **x0.14 to x0.21** (a 5-7x reduction) |
+
+Node count barely matters. Field size decides almost everything. And it is not density doing the
+work: ordered by density, the results do not trend with it. The two cells closest in density
+(50 vs 44 nodes/ha) differ by 1.7x for NSGA-II, 2.1x for LEACH and 5.5x for direct transmission,
+because one has the sink 104 m away and the other 156 m.
+
+Mean node-to-sink distance is 52 / 104 / 156 m at the three field sizes, and the share of nodes
+beyond the 120 m error threshold is **0% / 33% / 75%**. That last row is the whole story of this
+sweep.
+
+### 4.2 Clustering is actively harmful at 50x50 m
+
+LEACH's first node death, relative to no clustering at all:
+
+| | N=50 | N=100 | N=150 |
+|---|---|---|---|
+| 50x50 m | **x0.82** | **x0.83** | **x0.95** |
+| 100x100 m | x5.36 | x9.27 | x9.78 |
+| 150x150 m | x6.68 | x14.06 | x16.13 |
+
+At 50x50 the direct baseline outlives LEACH in every cell, on AUC as well as FND. With the sink
+75 m away every node is inside the free-space branch and can reach it cheaply, so clustering
+contributes overhead and nothing else. This generalises the paper's first finding from a statement
+about *some nodes* into a statement about *a whole operating regime*: clustering does not extend
+lifetime, it trades near-sink nodes against far ones, and when there are no far ones the trade is
+pure loss.
+
+### 4.3 The channel retraction reproduces, by a completely different route
+
+Advantage over LEACH in first node death, N=100:
+
+| Protocol | 50x50 | 100x100 | 150x150 |
+|---|---|---|---|
+| NSGA-II | +556 | +838 | +749 |
+| PEGASIS | +497 | +576 | +512 |
+| DQN | **+10** | +444 | +257 |
+| Fuzzy T2 | **+68** | +419 | +91 |
+| SOM | -337 | -70 | +39 |
+| GCN | -1409 | -664 | -145 |
+
+The fuzzy system and the DQN — the two protocols whose advantage vanished on the ideal channel —
+lose that advantage again at 50x50, where no link reaches the error waterfall. At N=50 they are
+outright **worse** than LEACH (-135 and -291). This is the same mechanism confirmed independently:
+their measurable skill is keeping the sink hop short, and where every hop is already short there is
+nothing to win.
+
+**The fuzzy system is the control that makes this attribution safe.** It has no training of any
+kind, so its collapse at 50x50 cannot be transfer failure — it must be the environment. Since the
+DQN behaves the same way, the DQN's collapse is the environment too, not a consequence of being
+evaluated away from its training configuration.
+
+### 4.4 Ranking stability: partial, and the exceptions are informative
+
+Spearman correlation of the FND ranking against the centre cell ranges 0.58 to 1.00. Rank span
+across the nine cells:
+
+| Stable (span <= 3) | Unstable (span 5-7) |
+|---|---|
+| NSGA-II (1-3), GCN (9-10), LEACH (6-8), PEGASIS (2-5), Fuzzy T2 (4-7) | Direct (4-10), DQN (2-8), SOM (3-9), TEEN/APTEEN (1-6) |
+
+Three movements are worth a sentence each in the paper:
+
+- **NSGA-II is the only protocol that beats LEACH in all nine cells** (+394 to +1177) and it takes
+  rank 1 in every 150x150 cell. It is the most scale-robust protocol in the study.
+- **DQN's standing improves monotonically as the deployment gets harder** — rank 8 at 50x50/N=50,
+  rank 2 at 150x150/N=150. It is the protocol whose value depends most on the problem being difficult.
+- **TEEN and APTEEN reverse.** Rank 1-2 at 50x50 and 100x100, but rank 4-6 at 150x150, where NSGA-II
+  and PEGASIS overtake them. Reactive reporting stops being enough once the sink hop is expensive.
+
+On **AUC** the ranking is far more stable (span 0-4 for every protocol except the direct baseline's
+7), which is consistent with the headline study: FND is the fragile metric, survival area is not.
+
+### 4.5 Transfer of the learned protocols
+
+DQN and GCN ran everywhere on weights frozen at N=100 / 100x100. Neither collapses away from that
+configuration, and GCN's deficit against LEACH actually *shrinks* as the field grows (-1409 at
+50x50, -145 at 150x150). There is no evidence here of catastrophic out-of-distribution failure —
+which is a mildly positive result for learned clustering, and one the paper is entitled to state
+because it pre-registered the opposite expectation in Section 3.
+
+GCN is nonetheless worse than LEACH in all nine cells, so the transfer result should be phrased as
+"it fails to generalise no *worse* than it already performs", not as a success.
+
+### 4.6 Generated artifacts
+
+Tables (`python scripts/make_tables.py --scale`):
+- `paper/tables/tab10_scale_fnd.tex` — first node death across all nine cells, with the sink-distance
+  note quantifying the area/channel-severity coupling
+- `paper/tables/tab11_scale_density.tex` — cells ordered by density, showing they do not trend with it
+
+Figures (`python scripts/extra_figures.py`):
+- `results/analysis/figures_paper/figD_scale_fnd.png` — FND vs N, one panel per field size, log axis
 - `results/analysis/figures_paper/figE_scale_density.png` — FND vs density, log axis
+
+**TEEN and APTEEN are censored in all nine cells (15/15 runs each).** Their LND is unusable
+everywhere in this sweep; use FND or AUC.
 
 ## 5. What to add to the paper, and where
 
@@ -101,17 +209,30 @@ cross-cell comparisons are not paired. One sentence stating that the base statio
 field and that this couples area to channel severity. Do not bury this; a reviewer who finds it
 themselves will distrust the rest.
 
-**Table X and Figure 8** carry the main result: does the ranking established in Section VI hold as
-the deployment changes? Write the answer as a direct statement — "the ordering is stable across all
-nine configurations" or "protocol X and Y exchange places below N=100" — not as a tour of the table.
+**Table X and Figure 8** carry the ranking result. The honest statement is *partial* stability:
+NSGA-II, GCN, LEACH, PEGASIS and Fuzzy T2 hold their positions across all nine cells; the direct
+baseline, DQN, SOM, TEEN and APTEEN move by five or more places. Name the three movements in
+Section 4.4 explicitly rather than describing the table.
 
-**Table XI and Figure 9** answer the density question: is the effect about neighbours or about
-ground covered? This is the part of the section a reader cannot get from any other paper, because
-nobody else varies both.
+**Table XI and Figure 9** answer the density question, and the answer is clean: it is neither
+neighbours nor ground, it is **distance to the sink**. Tripling node count moves lifetime by under
+26%; tripling field side moves it by a factor of 5-7. This is the part of the section no other paper
+can offer, because nobody else varies both axes.
 
-**A transfer paragraph.** How the DQN and GCN behave away from their training configuration, framed
-explicitly as out-of-distribution transfer. Cross-reference the pre-training disclosure in the
-protocols section and the caveat in threats to validity.
+**The two results that most strengthen the paper go here, not in the scale section's margins:**
+
+- *Clustering is harmful at 50x50* (Section 4.2). The no-clustering baseline outlives LEACH in all
+  three cells at that field size. This turns the paper's opening finding from a statement about some
+  nodes into a statement about an operating regime, and it deserves a cross-reference back to
+  Section VI.
+- *The channel retraction reproduces at 50x50* (Section 4.3), via a completely different route from
+  the ideal-channel comparison. Two independent confirmations of the same mechanism is much stronger
+  than one, and the untrained fuzzy system acts as the control that rules out transfer failure as
+  the explanation. Cross-reference Section VII.
+
+**A transfer paragraph.** Neither learned protocol collapses away from its training configuration —
+report this plainly, including that Section 3 predicted the opposite. GCN remains worse than LEACH
+in all nine cells, so phrase it as "generalises no worse than it already performs", not as success.
 
 **Two other sections need a sentence added:**
 
