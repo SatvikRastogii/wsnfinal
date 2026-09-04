@@ -1,177 +1,126 @@
 \section{Threats to Validity}
 \label{sec:validity}
 
-Every result in Section~\ref{sec:results} depends on choices that a reader
-cannot see in the numbers. This section states them, ordered by how far each
-could move a conclusion, and it names the one that could move the most first.
+Every result in Section~\ref{sec:results} depends on choices a reader cannot see
+in the numbers. This section states them, ordered by how far each could move a
+conclusion, and names the one that could move the most first.
 
 \subsection{The Control-Traffic Subsidy}
 \label{sec:subsidy}
 
 Centralized protocols are charged nothing for the uplink that informs the sink
 of node state. This is the largest single confound in the study and it favors
-five of the ten configurations.
-
-The justification is quantitative. A separate 200-bit status report per node per
-round, over a sink distance above 100~m and therefore on the fourth-power
-branch, costs roughly $3.6\times10^{-5}$~J per node per round, accumulating to
-about a quarter of the entire 1~J budget across the round cap. Charging it would
-sink all five centralized protocols for a reason unconnected to whether their
-clustering decisions are any good, and the piggyback assumption is standard in
-the centralized-clustering literature. But a defensible modeling choice is still
-a modeling choice, and its magnitude belongs in the results rather than in a
-footnote.
+five of the ten configurations. The justification is quantitative: a separate
+200-bit status report per node per round, over a sink distance above 100~m and
+therefore on the fourth-power branch, costs roughly $3.6\times10^{-5}$~J per
+node per round, about a quarter of the entire 1~J budget across the round cap.
+Charging it would sink all five centralized protocols for a reason unconnected
+to whether their clustering decisions are any good, and the piggyback assumption
+is standard in this literature. But a defensible modeling choice is still a
+choice, and its magnitude belongs in the results rather than in a footnote.
 
 Measured over the full sweep, LEACH spends 12.73\% of its consumed energy on
 control traffic against 2.33\% for the fuzzy system, 2.46\% for NSGA-II, 2.38\%
-for the map, 3.95\% for the DQN and 3.85\% for the GCN. The subsidy is therefore
-worth roughly nine to ten percentage points of the total budget. In packet terms
-the gap is starker still, 171{,}644 control packets for LEACH and 573{,}870 for
-TEEN against 9{,}657 to 12{,}216 for the centralized five, but the packet gap
-overstates the effect, since control packets are a fifth the size of data packets
-and most are short-range.
+for the map, 3.95\% for the DQN and 3.85\% for the GCN, so the subsidy is worth
+roughly nine to ten percentage points of the total budget. In packet terms the
+gap is starker, 171{,}644 control packets for LEACH against 9{,}657 to 12{,}216
+for the centralized five, but that overstates the effect, since control packets
+are a fifth the size of data packets and most are short-range.
 
-Two consequences follow. First, a claim of the form ``NSGA-II extends first
-death by 80\% over LEACH'' conflates clustering quality with an accounting
-convention and should not be made without qualification. Second, the reliable
-comparisons in this paper are the within-class ones: centralized against
-centralized, distributed against distributed, with the chain protocol comparing
-cleanly to neither. Section~\ref{sec:results}'s strongest results, the
-channel-conditional retraction and the DQN-versus-GCN rotation contrast, are both
-within-class and are unaffected.
-
-The clean resolution is an ablation that charges the uplink honestly and re-runs
-the sweep. It would convert this caveat into a measurement, and it is the single
-most valuable follow-up this codebase supports. It has not been run.
+Two consequences follow. A claim of the form ``NSGA-II extends first death by
+80\% over LEACH'' conflates clustering quality with an accounting convention and
+should not be made without qualification. And the reliable comparisons here are
+the within-class ones, centralized against centralized and distributed against
+distributed, with the chain protocol comparing cleanly to neither. The strongest
+results in Section~\ref{sec:results}, the channel-conditional retraction and the
+DQN-versus-GCN rotation contrast, are both within-class and unaffected. The
+clean resolution is an ablation that charges the uplink honestly and re-runs the
+sweep, which would convert this caveat into a measurement. It has not been run.
 
 \subsection{Transmit Power Is Bracketed, Not Swept}
 
 Section~\ref{sec:retraction} treats the channel comparison as a result, which it
-is, but the design bounds what it establishes. Two configurations bracket a
-continuum; they do not trace it. The lossy setting places the sink hop near the
-packet-error waterfall and the ideal setting removes loss entirely, so a
-conclusion stable across both is stable across that interval. A transmit power
-between them, or above the lossy setting, would produce intermediate behavior
-this study does not measure. A three-point or four-point sweep over transmit
-power would trace the curve properly and would show where the fuzzy system's and
-the DQN's first-death advantage over LEACH actually crosses the significance
-threshold. That sweep has not been run.
-
-The scale sweep of Section~\ref{sec:scale} partially compensates, because moving
-the sink changes how much of the node population sits in the waterfall and
-reaches the same boundary from a different direction. It is not a substitute:
-field size changes area and channel severity together, so it identifies the
-boundary without isolating the parameter.
-
-Related parameters are equally unspecified in the source material and equally
-consequential: the path-loss exponent, the shadowing standard deviation, the
-noise floor and the retry budget. We used conventional values for 2.4~GHz
-outdoor short-range links~\cite{rappaport2002wireless,ieee802154} and published
-the resulting packet-error curve so that the choice is auditable, but we did not
-vary them.
+is, but two configurations bracket a continuum without tracing it. A transmit
+power between the endpoints, or above the lossy one, would produce intermediate
+behavior this study does not measure, and a three-point or four-point sweep
+would show where the fuzzy system's and the DQN's advantage actually crosses the
+significance threshold. That sweep has not been run. The scale sweep partially
+compensates, since moving the sink changes how much of the population sits in
+the waterfall, but it is not a substitute: field size changes area and channel
+severity together, so it locates the boundary without isolating the parameter.
+The path-loss exponent, shadowing standard deviation, noise floor and retry
+budget are equally unspecified in the source material and equally consequential.
+We used conventional values for 2.4~GHz outdoor short-range
+links~\cite{rappaport2002wireless,ieee802154} and published the resulting
+packet-error curve so the choice is auditable, but we did not vary them.
 
 \subsection{The Pre-Training Asymmetry}
 
-The DQN and the GCN arrive pre-trained; the other seven protocols do not. Three
-distinct caveats follow and all belong in any citation of these results.
-
-Their reported setup time and operation counts are inference costs only.
-Training is real, is paid once, and is reported separately. It must not be read
-as free.
-
-The seven non-learned protocols receive no equivalent offline preparation. This
-is a fair comparison of a deployed system and it is not an apples-to-apples
-algorithmic comparison. Both statements are true simultaneously, and which one
-matters depends on the question being asked.
+The DQN and the GCN arrive pre-trained; the other seven do not. Their reported
+setup time and operation counts are inference costs only, and training is real,
+paid once and reported separately, so it must not be read as free. The seven
+non-learned protocols receive no equivalent offline preparation, which makes
+this a fair comparison of a deployed system and not an apples-to-apples
+algorithmic comparison; both statements are true and which matters depends on
+the question being asked.
 
 Generalization is now measured rather than assumed, but only in one direction.
 The evaluation seeds are disjoint from the training seeds, so the headline
-result is not memorization. The scale sweep additionally carries the frozen
-$N = 100$, $100\times100$~m weights into eight cells the policies never saw, and
-neither policy collapses; the GCN's deficit against LEACH even narrows as the
-field grows. What that does not establish is how these policies would compare
-against retrained versions of themselves, or how they behave under a sink
-placement that is not geometrically similar to the training one. Every cell in
-the sweep keeps the base station at $(W/2, 1.5W)$.
+result is not memorization, and the scale sweep carries the frozen weights into
+eight cells the policies never saw without either collapsing. What that does not
+establish is how these policies would compare against retrained versions of
+themselves, or how they behave under a sink placement not geometrically similar
+to the training one, since every cell keeps the base station at $(W/2, 1.5W)$.
 
 \subsection{Modeling Simplifications}
 
 The radio model accounts for transmit, receive and fusion energy and nothing
-else. There is no idle-listening cost, no sleep-wake transition energy, no radio
-startup and no processor energy. Idle listening frequently dominates real
-deployments, and including it would compress the differences between all ten
-configurations toward zero. Energy is a linear reservoir with no rate-capacity
-effect, no recovery effect and no voltage cutoff.
+else: no idle listening, no sleep-wake transitions, no radio startup, no
+processor energy, and a linear reservoir with no rate-capacity or recovery
+effect. Idle listening frequently dominates real deployments and including it
+would compress the differences between all ten configurations toward zero.
 
-Fusion is ideal. A head that receives any number of member packets emits exactly
+Fusion is ideal: a head receiving any number of member packets emits exactly
 one, so compression is lossless and free in bits. This systematically favors
-high-fan-in structures, and PEGASIS most of all: its aggregation ratio of 80
-readings per delivered packet is exactly the quantity this assumption idealizes.
-The engine enforces the rule symmetrically, so no protocol can exploit it beyond
-what its own topology allows, but the assumption still shapes the
-chain-versus-cluster comparison more than any other single simplification.
+high-fan-in structures and PEGASIS most of all, whose aggregation ratio of 80
+readings per delivered packet is exactly the quantity the assumption idealizes,
+and it shapes the chain-versus-cluster comparison more than any other single
+simplification.
 
-There is no MAC layer. Scheduling is assumed perfect and collision-free, with no
-contention, no hidden terminals, no inter-cluster interference and no capture
-effect. Packet loss comes only from distance-dependent
+There is no MAC layer, so scheduling is perfect and collision-free and packet
+loss comes only from distance-dependent
 error~\cite{zhao2003understanding,woo2003taming}. Adding interference would
 penalize dense-cluster protocols relative to the chain and would make the number
-of simultaneously active heads a variable this study cannot see. Latency inherits
-the same limitation: it is analytic rather than queueing-based, retransmissions
-cost energy but not modeled time, and the absolute figures in
-Section~\ref{sec:results} are lower bounds whose ordering is meaningful and whose
-magnitudes are not.
+of simultaneously active heads a variable this study cannot see, and latency
+inherits the same limitation, so its absolute figures are lower bounds whose
+ordering is meaningful and whose magnitudes are not. Everything is static, and
+the head-to-sink hop is single-hop for nine of ten configurations, matching each
+protocol's original specification and leaving the chain as the sole multi-hop
+contrast. Sensor data is a mean-reverting process rather than a real trace, so
+the reactive protocols' results are conditional on that model. Finally, every
+protocol targets the same nominal head count but realizes it differently, and
+LEACH's realized count is deliberately left stochastic, so part of every
+observed difference is attributable to realized cluster count rather than to
+selection logic.
 
-Everything is static. Nodes never move and fail only by depletion, so per-link
-shadowing is drawn once and held fixed. There is no mobility, no node addition
-and no environmental change across the run. The head-to-sink hop is single-hop
-for nine of ten configurations, matching each protocol's original specification,
-which leaves the chain as the sole multi-hop contrast.
-
-Sensor data is a mean-reverting process rather than a real trace. The reactive
-protocols' results are conditional on that model, and a bursty or spatially
-correlated field would change them substantially. The thresholds were set
-against the process's stationary distribution before any result was observed,
-and were not adjusted afterward.
-
-Finally, every protocol targets the same nominal head count but realizes it
-differently, and LEACH's realized count is deliberately left stochastic. Part of
-every observed difference is therefore attributable to realized cluster count
-rather than to selection logic. Fixing the target isolates the question these
-protocols actually differ on, namely which five of the roughly five heads
-available should be chosen, but it does not eliminate the effect.
-
-\subsection{Scope}
+\subsection{Scope and Non-Calibration}
 
 This study establishes results at one energy budget and one traffic model.
-Network scale is now swept over three node counts and three field areas, but
-within a single family of geometrically similar deployments, and three protocols
-have complexity superlinear in node count. Node energy is homogeneous; the
-configuration supports heterogeneity but it is disabled throughout. Every node
-senses every round, with no duty cycling, event-driven traffic or query
-workload. APTEEN's query facilities in particular are out of scope, and only its
-reporting-frequency mechanism is modeled. There is no hardware testbed and no
-measured trace; every number is simulation output under the assumptions above.
-
-The scale sweep also carries one design limitation worth repeating here. Cells
-were chosen to span node count and area independently, not to hold density
-constant, so the finding that density does not drive lifetime rests on a close
-pairing (50 against 44 nodes per hectare) rather than an exact match. The effect
-sizes involved are large enough that a small density gap cannot account for
-them, but a grid designed around density would settle the point more directly.
-
-\subsection{On Not Calibrating}
+Network scale is swept over three node counts and three field areas, but within
+a single family of geometrically similar deployments, and three protocols have
+complexity superlinear in node count. Node energy is homogeneous, every node
+senses every round with no duty cycling or query workload, and there is no
+hardware testbed and no measured trace; every number is simulation output under
+the assumptions above.
 
 No protocol was tuned to reproduce a published figure. Only protocol
 descriptions, the radio model and simulation parameters were taken from prior
-work; its numeric results were discarded before implementation began.
-Disagreement with published tables is therefore expected and is not evidence of
-error here.
-
-The one place this commitment was tested is documented in
-Section~\ref{sec:dqn-disclosure}. The DQN's discount factor and training length
-were revised after an observed divergence, after which a stopping rule was fixed
-in advance and the result recorded as final regardless of outcome. We state this
-because the alternative, presenting the final hyperparameters as if they had been
-the first, is the ordinary way such revisions disappear from a methods
-section~\cite{henderson2018matters,pineau2021reproducibility}.
+work, and its numeric results were discarded before implementation began, so
+disagreement with published tables is expected and is not evidence of error
+here. The one place this commitment was tested is documented in
+Section~\ref{sec:dqn-disclosure}, where the DQN's discount factor and training
+length were revised after an observed divergence, after which a stopping rule
+was fixed in advance and the result recorded as final regardless of outcome. We
+state this because the alternative, presenting the final hyperparameters as if
+they had been the first, is the ordinary way such revisions disappear from a
+methods section~\cite{henderson2018matters,pineau2021reproducibility}.

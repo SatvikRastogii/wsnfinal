@@ -8,40 +8,26 @@
 
 The direct-transmission baseline makes the first result concrete. LEACH reaches
 first node death at 1{,}046 rounds against the baseline's 114, an improvement of
-9.2 times. But the baseline's last node dies at 3{,}202 rounds against LEACH's
+9.2 times, but the baseline's last node dies at 3{,}202 rounds against LEACH's
 2{,}191, which is 46\% later. Clustering does not extend lifetime; it
 redistributes it, buying a much later first death at the cost of an earlier last
 one.
 
-\begin{figure}[!t]
-\centering
-\includegraphics[width=\columnwidth]{fig1_alive_nodes.png}
-\caption{Living nodes against round, lossy channel, mean over 30 paired trials.
-The direct baseline loses its first node almost immediately and then decays
-slowly, while the clustered protocols hold a full population far longer and then
-collapse. The two shapes cross, which is why no single death point orders these
-protocols and why the area under this curve is reported alongside all three.}
-\label{fig:alive}
-\end{figure}
-
 The mechanism is geometric. With the sink at 150~m and a crossover at 87.7~m, 36
-of the 100 nodes in the seed-0 topology lie close enough to transmit on the
-free-space branch and are individually cheap to operate; the expected fraction
-over the placement distribution is 32.7\%. Under direct transmission those nodes
-are never asked to relay anyone else's traffic and simply outlive everything
-LEACH produces. Under rotation they subsidize the expensive far-field nodes.
-Fig.~\ref{fig:alive} shows the two survival shapes crossing.
+of the 100 nodes in the seed-0 topology transmit on the free-space branch and
+are individually cheap to operate. Under direct transmission those nodes are
+never asked to relay anyone else's traffic and simply outlive everything LEACH
+produces; under rotation they subsidize the expensive far-field nodes. This is
+why every lifetime claim here is reported at three death points plus the area
+under the living-node curve: any single figure silently picks a winner, and the
+two most commonly reported figures pick opposite ones.
 
-This is why every lifetime claim in this paper is reported at three death points
-plus the area under the living-node curve. Any single figure silently picks a
-winner, and the two most commonly reported figures pick opposite ones.
-
-The baseline also produces the clearest illustration of survivorship bias in
+The baseline also gives the clearest illustration of survivorship bias in
 delivery statistics. Its delivery ratio of 96.9\% is the highest of any
 configuration on the lossy channel, well above LEACH's 87.7\%, and it is an
-artifact: the distant nodes that lose the most packets die first, so the
-surviving population is progressively closer to the sink. Measured directly, the
-baseline's delivery ratio rises from 83.7\% over its first hundred rounds to
+artifact, because the distant nodes that lose the most packets die first and the
+surviving population moves progressively closer to the sink. Measured directly,
+the baseline's delivery ratio rises from 83.7\% over its first hundred rounds to
 98.6\% over its last hundred. Delivery ratio is never reported here without the
 living-node curve beside it.
 
@@ -53,8 +39,8 @@ living-node curve beside it.
 \caption{First node death per trial, lossy channel, all 30 paired trials shown
 individually rather than as a mean and a deviation. The reactive pair leads, the
 GCN is visibly bimodal, and PEGASIS carries one topology at 449 rounds against a
-body near 1{,}800. A mean and standard deviation would describe none of these
-three distributions correctly.}
+body near 1{,}800. A mean and standard deviation describes none of these three
+distributions correctly.}
 \label{fig:fnd-dist}
 \end{figure}
 
@@ -66,35 +52,32 @@ margin, TEEN at 2{,}208 rounds with $\Delta = +1{,}163$, followed by NSGA-II at
 system at 1{,}462. Two protocols are significantly worse than LEACH: the
 self-organizing map at 959 and the GCN at 335.
 
-Three observations survive scrutiny and are worth stating separately from the
-ranking.
+Three observations survive scrutiny separately from the ranking, and
+Fig.~\ref{fig:fnd-dist} shows why a table of means would hide all three.
 
-NSGA-II posts both the best non-reactive first death and the tightest spread of
-any of the nine clustering protocols, with a standard deviation of 31 rounds
-against LEACH's 43, the DQN's 55 and PEGASIS's 331. Its advantage holds in both
-channel configurations. But its convergence is modest, and we report that as a
-finding rather than suppress it. Over the logged mid-run reclustering, the
-population's best round-energy objective improves by 1.76\% and its best
-minimum-head-energy objective by 3.61\%, while only cluster-size balance moves
-substantially, from 2.99 to 1.85 for the population best and from 9.19 to 5.58
-at the knee point. With five heads drawn from a hundred candidates, random
-initialization already lands near a good solution. NSGA-II's advantage here
-should therefore not be attributed to the sophistication of the search.
+NSGA-II posts the best non-reactive first death and the tightest spread of any
+of the nine clustering protocols, a standard deviation of 31 rounds against
+LEACH's 43, the DQN's 55 and PEGASIS's 331, and its advantage holds in both
+channels. But its convergence is modest and we report that rather than suppress
+it: over the logged mid-run reclustering the population's best round-energy
+objective improves by 1.76\% and its best minimum-head-energy objective by
+3.61\%, while only cluster-size balance moves substantially, from 2.99 to 1.85.
+With five heads drawn from a hundred candidates, random initialization already
+lands near a good solution, so NSGA-II's advantage should not be attributed to
+the sophistication of the search.
 
-PEGASIS has by far the largest first-death variance of any protocol, 331 rounds
-against a typical 30 to 60. A greedy chain is sensitive to where the topology
-happens to place its outliers, and a single badly positioned node changes the
-chain's whole cost structure; one trial gives 449 rounds against a body near
-1{,}800. Its half-death figure, by contrast, has a standard deviation of 9
-rounds, the tightest in the study, because once the chain has been rebuilt a few
-times its structure becomes topology-insensitive.
+PEGASIS has by far the largest first-death variance, 331 rounds against a
+typical 30 to 60, because a greedy chain is sensitive to where the topology
+places its outliers and one badly positioned node changes the whole cost
+structure; one trial gives 449 rounds against a body near 1{,}800. Its
+half-death standard deviation of 9 rounds is the tightest in the study, because
+once the chain has been rebuilt a few times its structure becomes
+topology-insensitive.
 
 The GCN's first death is not merely poor but bimodal. Across the first five
 seeds it records 448, 394, 418, 112 and 98 rounds, and over all 30 trials eight
-fall between 94 and 151 while the remaining twenty-two fall between 284 and 482.
-A mean of 335 with a standard deviation of 142 describes neither mode.
-Fig.~\ref{fig:fnd-dist} shows the shape, and
-Section~\ref{sec:credit} explains it.
+fall between 94 and 151 while twenty-two fall between 284 and 482. A mean of 335
+with a standard deviation of 142 describes neither mode.
 
 \subsection{A Conclusion the Channel Sweep Retracts}
 \label{sec:retraction}
@@ -102,98 +85,74 @@ Section~\ref{sec:credit} explains it.
 \input{tables/tab6_paired_fnd}
 \input{tables/tab8_energy_split}
 
-Applying the decision rule of Section~\ref{sec:channel-pair} to the 30-run
-sweep, one conclusion does not survive, and it is a load-bearing one. On the
-lossy channel the fuzzy system and the DQN improve first death over LEACH by 417
-and 426 rounds respectively, both at the corrected significance floor of
-$p_{\mathrm{Holm}} = 0.00045$. On the ideal channel the same comparisons give 17
-and 22 rounds at $p_{\mathrm{Holm}} = 0.119$ and $0.124$, which is not
-significant. Remove packet loss and both protocols become statistically
-indistinguishable from LEACH on the metric this literature most often reports.
-Table~\ref{tab:paired-fnd} gives both channels side by side.
+Applying the decision rule of Section~\ref{sec:channel-pair}, one conclusion
+does not survive, and it is a load-bearing one. On the lossy channel the fuzzy
+system and the DQN improve first death over LEACH by 417 and 426 rounds, both at
+the corrected floor of $p_{\mathrm{Holm}} = 0.00045$. On the ideal channel the
+same comparisons give 17 and 22 rounds at $p_{\mathrm{Holm}} = 0.119$ and
+$0.124$, not significant. Remove packet loss and both protocols become
+statistically indistinguishable from LEACH on the metric this literature most
+often reports. Table~\ref{tab:paired-fnd} gives both channels side by side.
 
 We measured the mechanism rather than arguing it, and the measurement rules out
 the explanation we expected. Table~\ref{tab:energy-split} splits each protocol's
-energy by accounting category over a single seed and reports the full
-distribution of head-to-sink distance in the same run, not only its mean.
+energy by accounting category and reports the full distribution of head-to-sink
+distance, not only its mean.
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=\columnwidth]{figF_head_distance.png}
 \caption{Distribution of head-to-sink distance per protocol, drawn over the
 packet-error curve. Every protocol's \emph{mean} falls in the flat region where
-packet error is effectively zero, so the mean cannot be what drives the retry
-gap. The distributions differ in their upper tails, and only the tails reach the
+packet error is effectively zero, so the mean cannot drive the retry gap. The
+distributions differ in their upper tails, and only the tails reach the
 waterfall.}
 \label{fig:head-dist}
 \end{figure}
 
-The obvious reading of these numbers would be that LEACH's average cluster head
-sits at 102.1~m, past the 87.7~m crossover and therefore onto the fourth-power
-branch, while the DQN's sits at 81.1~m. That is true, and it explains part of
-the difference in raw transmit energy, but it cannot explain the
-retransmissions. Packet error is $2.6\times10^{-8}$ at 100~m and does not reach
-$10^{-3}$ until 120~m, and every protocol in Table~\ref{tab:energy-split} has a
-mean head distance below 120~m. A protocol whose heads all sat at the mean would
-retry essentially never.
+The obvious reading would be that LEACH's average head sits at 102.1~m, past the
+87.7~m crossover and onto the fourth-power branch, while the DQN's sits at
+81.1~m. That is true, and it explains part of the difference in raw transmit
+energy, but it cannot explain the retransmissions. Packet error is
+$2.6\times10^{-8}$ at 100~m and does not reach $10^{-3}$ until 120~m, and every
+protocol in Table~\ref{tab:energy-split} has a mean head distance below 120~m. A
+protocol whose heads all sat at the mean would retry essentially never.
 
 What separates them is the upper tail, shown in Fig.~\ref{fig:head-dist}. LEACH
 spends 29.9\% of its head-rounds beyond 120~m and 6.39\% of its budget on
-retransmissions. The DQN spends 5.1\% of its head-rounds beyond 120~m and 2.31\%
-on retransmissions. Across the six single-hop protocols the share of head-rounds
-beyond 120~m correlates with retry energy share at $r = 0.95$. The mean distance
-correlates almost as strongly, at $r = 0.93$, because the two quantities are
-collinear; the reason to prefer the tail is not a better fit but that only the
-tail lies in the region where packets actually fail.
+retransmissions; the DQN spends 5.1\% of head-rounds beyond 120~m and 2.31\% on
+retransmissions. Across the six single-hop protocols the tail share correlates
+with retry energy share at $r = 0.95$. The mean distance correlates almost as
+strongly, at $r = 0.93$, because the two are collinear; the reason to prefer the
+tail is not a better fit but that only the tail lies in the region where packets
+actually fail.
 
-\begin{figure}[!t]
-\centering
-\includegraphics[width=\columnwidth]{figC_mechanism.png}
-\caption{Retry energy share against the share of head-rounds beyond 120~m, lossy
-channel, seed 0. The six single-hop protocols line up at $r = 0.95$. PEGASIS,
-plotted separately, has the same 30\% tail as LEACH and almost no retry cost,
-because only its leader ever faces the sink.}
-\label{fig:mechanism}
-\end{figure}
-
-PEGASIS is the exception that fixes the scope of the claim, and we state it
-rather than exclude it quietly. Its leader rotates uniformly over chain
-positions, so its leader-distance distribution is identical to the node
-distribution and 30.0\% of leader-rounds sit beyond 120~m, the same as LEACH.
-Yet it retries on only 1.39\% of its budget. Including it drops the correlation
-from 0.95 to 0.50. The reason is structural: in a chain, exactly one node faces
-the sink per round while every other transmission is a short hop to a neighbor,
-so the tail of the sink-facing distribution is paid once per round instead of
+PEGASIS fixes the scope of the claim and we state it rather than exclude it
+quietly. Its leader rotates uniformly over chain positions, so 30.0\% of
+leader-rounds sit beyond 120~m, the same as LEACH, yet it spends only 1.39\% on
+retries, and including it drops the correlation from 0.95 to 0.50. The reason is
+structural: in a chain exactly one node faces the sink per round while every
+other transmission is a short hop, so the tail is paid once per round instead of
 five times. The claim is therefore specific to single-hop clustered protocols,
-where every head pays the sink hop, and Fig.~\ref{fig:mechanism} plots it that
-way.
+where every head pays the sink hop.
 
-The honest claim is therefore narrower, and more interesting, than ``the
-soft-computing and learned protocols cluster better''. Their demonstrable skill
-is keeping the far tail of the head-to-sink hop out of the error waterfall, and
-that skill pays only in proportion to how lossy that hop is. Delete the loss by
-making the channel lossless and the advantage disappears. The same table shows
-LEACH's compensating strength: it consumes 20\% more total energy than the DQN
-yet matches its first death on a clean channel, because its epoch rule rotates
-head duty perfectly.
+The honest claim is narrower, and more interesting, than ``the soft-computing
+and learned protocols cluster better''. Their demonstrable skill is keeping the
+far tail of the head-to-sink hop out of the error waterfall, and that skill pays
+only in proportion to how lossy the hop is. The same table shows LEACH's
+compensating strength: it consumes 20\% more total energy than the DQN yet
+matches its first death on a clean channel, because its epoch rule rotates head
+duty perfectly.
 
 The retraction is specific to first death and we do not overstate it. On area
-under the living-node curve and on readings delivered, every protocol's
-difference from LEACH is significant at the corrected floor in both channels, in
-the same direction and at similar magnitude; the fuzzy system gains 24{,}793
-node-rounds on the lossy channel and 22{,}120 on the ideal.
-Table~\ref{tab:paired-robust} gives these. The correct statement is that the
-advantage in overall survival and in data delivered is robust to the channel,
-and only the advantage in first death is not. First death is a single order
-statistic and the most fragile of the four lifetime measures.
-
-\input{tables/tab7_paired_robust}
-\input{tables/tab9_robustness}
-
-Across all forty protocol-metric rankings, four ranks move between channel
-configurations, and both moving pairs are near-ties between adjacent protocols
-(Table~\ref{tab:robustness}). The ordering is therefore stable. What is not
-stable is the statistical significance of specific first-death gaps.
+under the living-node curve and on readings delivered, all eighteen comparisons
+against LEACH are significant at the corrected floor in both channels, in the
+same direction and at similar magnitude; the fuzzy system gains 24{,}793
+node-rounds on the lossy channel and 22{,}120 on the ideal. Across all forty
+protocol-metric rankings only four ranks move between channels, and both moving
+pairs are near-ties between adjacent protocols. The ordering is stable; what is
+not stable is the significance of specific first-death gaps. First death is a
+single order statistic and the most fragile of the four lifetime measures.
 
 \subsection{What Temporal Credit Assignment Buys}
 \label{sec:credit}
@@ -203,178 +162,130 @@ stable is the statistical significance of specific first-death gaps.
 The DQN and the GCN consume identical inputs and differ only in architecture and
 training signal, so the gap between them isolates one variable. Over the 30
 paired trials the DQN's first death ranges from 1{,}361 to 1{,}580, a spread of
-219 rounds with a standard deviation of 55. The GCN's ranges from 94 to 482, a
+219 rounds with a standard deviation of 55; the GCN's ranges from 94 to 482, a
 spread of 388 with a standard deviation of 142, and it is bimodal rather than
 merely wide.
-
-\begin{figure}[!t]
-\centering
-\includegraphics[width=\columnwidth]{figG_head_rotation.png}
-\caption{Rounds served as cluster head per node over 1{,}100 rounds, seed 0,
-sorted. LEACH's epoch rule produces a flat line at exactly 55. The GCN's curve is
-the opposite extreme: it concentrates 750 rounds of head duty on one node while
-13 nodes never serve at all, which is what its single-round objective is
-indifferent to.}
-\label{fig:rotation}
-\end{figure}
 
 Table~\ref{tab:head-rotation} measures why over 1{,}100 rounds on seed 0. The
 GCN's busiest node serves as cluster head for 750 of those rounds against
 LEACH's 55, a factor of 13.6, and its Gini coefficient over head duty is 0.700
-against LEACH's 0.001. Thirteen of its nodes never serve at all, and its median
+against LEACH's 0.001; thirteen of its nodes never serve at all and its median
 node serves 16 rounds. It does not choose badly. It repeatedly chooses the same
 genuinely good node until that node dies, which is exactly the failure a
 single-round objective cannot see. The DQN, with the same four features
-including rounds since last serving as head, concentrates far less: 223 rounds
-on its busiest node and a Gini of 0.476. Fig.~\ref{fig:rotation} shows the two
-curves against LEACH's flat line.
+including rounds since last serving as head, concentrates far less, at 223
+rounds on its busiest node and a Gini of 0.476.
 
 This is the paper's cleanest controlled contrast. The GCN can see rotation state
-in its input. What it lacks is any term in its loss that rewards deferring cost
+in its input; what it lacks is any term in its loss that rewards deferring cost
 to extend lifetime, and the cost of that omission is a first death 3.1 times
 earlier than LEACH's. It is also the only protocol to lose to LEACH on first
-death in both channel configurations by a wide margin.
+death by a wide margin in both channels.
 
-\subsection{Delivery and the Reactive Tradeoff}
+\subsection{Delivery, Cost and the Reactive Tradeoff}
 
 TEEN and APTEEN dominate every lifetime metric and fail to reach full depletion
 within the 7{,}000-round cap in all 30 trials, so their last-death figures are
-lower bounds. Their area under the living-node curve is 3.2 times LEACH's. This
-is not free. Their data yield is 0.109 and 0.121 against roughly 0.9 for the
-proactive protocols, and they deliver 58{,}551 and 62{,}579 readings against
-LEACH's 146{,}616. They survive by not reporting, and their reporting rate,
-0.15 and 0.17 of rounds respectively, is the quantity that makes the lifetime
-figure interpretable. Reported without it, their lifetime is not a result about
-clustering at all.
+lower bounds and their area under the living-node curve is 3.2 times LEACH's.
+This is not free. Their data yield is 0.109 and 0.121 against roughly 0.9 for
+the proactive protocols, and they deliver 58{,}551 and 62{,}579 readings against
+LEACH's 146{,}616. They survive by not reporting, and their reporting rate, 0.15
+and 0.17 of rounds, is what makes the lifetime figure interpretable; reported
+without it, their lifetime is not a result about clustering at all.
 
 Table~\ref{tab:delivery} also shows why packets at the base station must not be
 compared across protocols. PEGASIS delivers 182{,}179 readings in 2{,}272
-packets, an aggregation ratio of 80, while the direct baseline delivers 128{,}075
-readings in 128{,}075 packets. On a packet count PEGASIS looks like the worst
-protocol in the study and on readings it is the best.
+packets, an aggregation ratio of 80, while the direct baseline delivers
+128{,}075 readings in as many packets: on packet count PEGASIS looks like the
+worst protocol in the study and on readings it is the best.
 
-\subsection{Cost and Latency}
-
-\input{tables/tab5_cost}
-
-Latency separates the protocols structurally. The clustered protocols sit
-between 387 and 419~ms mean, LEACH is lowest at 274~ms because its stochastic
-election produces smaller average clusters, and PEGASIS is an outlier at
-1{,}045~ms mean and 1{,}626~ms at the 95th percentile. Chain depth is the
-dominant latency cost and no amount of energy efficiency compensates for it. The
-ordering is structurally correct, but the absolute figures are lower bounds,
-since the model contains no queueing or contention delay.
-
-Computational cost is where the three measurement notions of
-Section~\ref{sec:metrics} disagree most sharply, which is the argument for
+The three notions of computational cost disagree, which is the argument for
 keeping them separate. NSGA-II costs 102.9~ms per round of setup against LEACH's
-0.82~ms, a factor of 126, and 86{,}348 counted operations against 329, a factor
-of 262. The self-organizing map is second at 38.3~ms. But the ordering by
-counted operations and by wall-clock is not the same. The DQN performs 8{,}210
-counted operations per round in 0.52~ms, while the fuzzy system performs 2{,}301
-in 5.14~ms. The DQN does 3.6 times the algorithmic work in a tenth of the time,
-because its work is a dense matrix product and the fuzzy system's is an
-iterative type-reduction loop. Reporting either number alone would invert the
-comparison.
-
-Control traffic differs by more than an order of magnitude across classes:
-573{,}870 packets for TEEN and 171{,}644 for LEACH against 9{,}657 to 12{,}216
-for the centralized five. That gap is substantially an artifact of the
-accounting model rather than of clustering quality, and
-Section~\ref{sec:validity} quantifies it.
+0.82~ms and 86{,}348 counted operations against 329. But the orderings differ:
+the DQN performs 8{,}210 operations per round in 0.52~ms while the fuzzy system
+performs 2{,}301 in 5.14~ms, so the DQN does 3.6 times the algorithmic work in a
+tenth of the time, its work being a dense matrix product against an iterative
+type-reduction loop, and reporting either number alone would invert the
+comparison. Latency separates the protocols structurally, the clustered
+protocols falling between 387 and 419~ms mean against PEGASIS at 1{,}045~ms,
+because chain depth dominates.
 
 \subsection{Node Count, Field Area, and the Regime Boundary}
 \label{sec:scale}
 
 \input{tables/tab10_scale_fnd}
-\input{tables/tab11_scale_density}
-
-The headline study measures one deployment. The $3\times3$ sweep of
-Section~\ref{sec:scale-design} asks which of its conclusions are about
-clustering and which are about that deployment.
-Table~\ref{tab:scale-fnd} gives first node death in all nine cells and
-Table~\ref{tab:scale-density} reorders the same cells by node density.
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=\columnwidth]{figD_scale_fnd.png}
-\caption{First node death across the nine cells, log scale, color by
-generation. Moving between field sizes shifts every protocol by roughly an order
-of magnitude; moving between node counts within a field size barely moves
-anything. The reactive pair reverses rank between the smallest and largest
-fields.}
+\caption{First node death across the nine cells, log scale, color by generation.
+Moving between field sizes shifts every protocol by roughly an order of
+magnitude; moving between node counts within a field size barely moves anything.
+The reactive pair reverses rank between the smallest and largest fields.}
 \label{fig:scale-fnd}
 \end{figure}
+
+The headline study measures one deployment. The $3\times3$ sweep asks which of
+its conclusions are about clustering and which are about that deployment, and
+Table~\ref{tab:scale-fnd} gives first node death in all nine cells.
 
 \emph{Area dominates node count by roughly five to one.} Averaged over all ten
 configurations, tripling the node count changes first node death by a factor of
 0.88 to 1.26, while tripling the field side changes it by a factor of 5 to 7.
 Fig.~\ref{fig:scale-fnd} shows the separation directly.
 
-\emph{The driver is distance to the sink, not density.}
-Table~\ref{tab:scale-density} orders the cells by node density, and if density
-were the cause the rows would trend with it. They do not; they track the mean
-sink distance column instead. The two cells closest in density, 50 and 44
-nodes per hectare, differ by 1.7 times for NSGA-II, 2.1 times for LEACH and 5.5
-times for direct transmission, because one has its sink 104~m away and the other
-156~m. We note the limitation this rests on: the grid was not designed to hold
-density constant, so no two cells match exactly, and this is a near-match rather
-than a controlled contrast. The effect sizes differ by enough that the
-conclusion is not sensitive to the gap, but the design does not license a
-stronger statement.
-
-\begin{figure}[!t]
-\centering
-\includegraphics[width=\columnwidth]{figE_scale_density.png}
-\caption{First node death against node density, with points coloured by field
-size. Density spans a factor of 27 across the grid and explains almost none of
-the variation; the three field-size bands separate cleanly instead.}
-\label{fig:scale-density}
-\end{figure}
+\emph{The driver is distance to the sink, not density.} Ordering the cells by
+node density produces no trend; they track mean sink distance instead. The two
+cells closest in density, 50 and 44 nodes per hectare, differ by 1.7 times for
+NSGA-II, 2.1 times for LEACH and 5.5 times for direct transmission, because one
+has its sink 104~m away and the other 156~m. Density spans a factor of 27 across
+the grid and explains almost none of the variation. The grid was not designed to
+hold density constant, so this is a near-match rather than a controlled
+contrast; the effect sizes differ by enough that the conclusion is not sensitive
+to the gap, but the design does not license a stronger statement.
 
 \emph{Clustering is harmful when the sink is close.} In the $50\times50$~m
-field, where the mean node-to-sink distance is 52~m and no node lies beyond
-120~m, LEACH's first node death relative to no clustering at all is a factor of
-0.82, 0.83 and 0.95 at $N = 50$, 100 and 150. The no-clustering baseline outlives
-LEACH in all three cells, on area under the living-node curve as well as on first
+field, where mean node-to-sink distance is 52~m and no node lies beyond 120~m,
+LEACH's first node death relative to no clustering at all is a factor of 0.82,
+0.83 and 0.95 at $N = 50$, 100 and 150, and the no-clustering baseline outlives
+LEACH in all three cells on area under the living-node curve as well as on first
 death. At $100\times100$~m the same ratios are 5.4, 9.3 and 9.8, and at
-$150\times150$~m they are 6.7, 13.8 and 16.1. The opening result of
-Section~\ref{sec:results} is therefore not a statement about clustering as such
-but about an operating regime: clustering pays once the sink hop is expensive
-enough to be worth aggregating away, and not before.
+$150\times150$~m they are 6.7, 13.8 and 16.1. The opening result of this section
+is therefore not a statement about clustering as such but about an operating
+regime: clustering pays once the sink hop is expensive enough to be worth
+aggregating away, and not before.
 
 \emph{The channel retraction reproduces from an independent direction.} In the
-$50\times50$~m field the DQN's first-death advantage over LEACH falls to $+10$
-rounds at $N = 100$ and to $-291$ at $N = 50$, against $+444$ at
-$100\times100$~m; the fuzzy system falls to $+68$ and $-135$ against $+419$.
-This is the same boundary found in Section~\ref{sec:retraction} by removing
-packet loss, reached instead by moving the sink close enough that no link
-reaches the waterfall. The fuzzy system is what makes the attribution safe: it
-has no training of any kind, so its collapse cannot be a transfer failure and
-must be a property of the environment. Since the DQN behaves the same way, the
-DQN's collapse is a property of the environment too.
+$50\times50$~m field the DQN's advantage over LEACH falls to $+10$ rounds at
+$N = 100$ and to $-291$ at $N = 50$, against $+444$ at $100\times100$~m; the
+fuzzy system falls to $+68$ and $-135$ against $+419$. This is the boundary of
+Section~\ref{sec:retraction} reached by moving the sink close enough that no
+link reaches the waterfall, rather than by removing packet loss. The fuzzy
+system makes the attribution safe: it has no training of any kind, so its
+collapse cannot be transfer failure and must be a property of the environment.
+Since the DQN behaves the same way, the DQN's collapse is too.
 
 \emph{Rankings are partly stable and the exceptions are informative.} NSGA-II
 holds ranks 1 to 3 in every cell, takes rank 1 in all three $150\times150$~m
-cells, and beats LEACH in all nine by margins from $+394$ to $+1{,}177$ rounds.
-The GCN holds ranks 9 to 10 everywhere. Against those, the DQN's rank improves
-monotonically as the field grows, and TEEN and APTEEN reverse outright, from
-ranks 1 and 2 in the two smaller fields to ranks 4 to 6 at $150\times150$~m
-where NSGA-II and PEGASIS overtake them. Rankings by area under the living-node
-curve are considerably more stable than by first death, with every protocol
-except the direct baseline moving at most four places.
+cells, and beats LEACH in all nine by margins from $+394$ to $+1{,}177$ rounds,
+while the GCN holds ranks 9 to 10 everywhere. Against those, the DQN's rank
+improves monotonically as the field grows, and TEEN and APTEEN reverse outright,
+from ranks 1 and 2 in the two smaller fields to ranks 4 to 6 at
+$150\times150$~m. Rankings by area under the living-node curve are far more
+stable, with every protocol except the direct baseline moving at most four
+places.
 
 \emph{The frozen policies do not collapse off their training distribution.}
-The DQN and the GCN carry $N = 100$, $100\times100$~m weights into all nine
-cells with no retraining. Neither fails catastrophically, and the GCN's deficit
-against LEACH actually shrinks as the field grows, from between $-1{,}409$ and
-$-1{,}591$ rounds in the smallest field to between $-84$ and $-272$ in the
-largest, although it remains worse than LEACH in every cell. This is weaker
-evidence than a retrained comparison would give, and it is not a claim that
-these policies are scale-invariant. It is a claim that their reported advantage
-is not an artifact of evaluating them only at the point where they were trained.
+Carrying $N = 100$, $100\times100$~m weights into all nine cells, neither
+learned protocol fails catastrophically, and the GCN's deficit against LEACH
+shrinks as the field grows, from between $-1{,}409$ and $-1{,}591$ rounds in the
+smallest field to between $-84$ and $-272$ in the largest, though it remains
+worse than LEACH everywhere. This is weaker evidence than a retrained comparison
+would give and is not a claim of scale invariance; it is a claim that the
+reported advantage is not an artifact of evaluating these policies only where
+they were trained.
 
-Two of our five pre-registered expectations about this sweep were wrong, and we
-report both. We expected the generational gap to widen at $150\times150$~m; it
-narrows there as well as at $50\times50$~m, so the gap is largest in the middle
-cell. We expected node density to matter; it does not.
+Two of our five pre-registered expectations were wrong and we report both. We
+expected the generational gap to widen at $150\times150$~m; it narrows there as
+well as at $50\times50$~m, so the gap is largest in the middle cell. And we
+expected node density to matter; it does not.

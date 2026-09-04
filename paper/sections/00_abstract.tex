@@ -1,32 +1,27 @@
 \begin{abstract}
-Wireless sensor nodes spend most of their energy on the radio and rarely get a
-new battery, so lifetime is decided by how the network organizes its
-transmissions. Clustering is the standard answer, and twenty-five years of
-clustering protocols now span three methodological generations: probabilistic
-and threshold heuristics, explicit optimization, and learned selection
-functions. Those generations are usually compared by reading their published
-tables side by side, which does not work, because each protocol was measured
-against a different simulator, field size, node count, energy budget and
-channel. We rebuild the comparison from scratch. Nine protocols spanning all
-three generations, plus a direct-transmission baseline, run on a single engine
-that owns energy accounting, packet sizing, fusion, the channel and the
-counting of delivered readings; a protocol returns only a cluster structure, and
-a static audit confirms that no implementation touches the energy or liveness
-arrays. Trials are paired, so at a given index every protocol sees the same
-topology, the same per-link shadowing and the same sensed-value stream, and the
-resulting differences are tested with sign-flip permutation, paired bootstrap
-intervals and Holm correction. Running the whole study at both endpoints of the
-one parameter the source specifications leave open, transmit power, retracts one
-of our own comparisons: the first-death advantage of the type-2 fuzzy protocol
-and the deep Q-network over LEACH is 417 and 426 rounds under packet loss and
-falls to 17 and 22 rounds, no longer significant, once loss is removed. Their
-advantage in overall survival and in readings delivered survives both channels.
-A 1{,}350-run sweep over three node counts and three field areas shows the same
-boundary from the other side: distance to the sink, not node density, sets the
-regime, and in a $50\times50$~m field clustering is worse than no clustering at
-all. We report the mechanism by measurement rather than by argument, and we
-disclose the modeling choices that bound the results, ordered by how far each
-could move a conclusion.
+Clustering protocols for wireless sensor networks span three methodological
+generations: probabilistic heuristics, explicit optimization, and learned
+selection functions. They are usually compared by reading their published
+tables side by side, which does not work, because each was measured against a
+different simulator, field size, node count, energy budget and channel. We
+rebuild the comparison. Nine protocols plus a direct-transmission baseline run
+on one engine that owns energy accounting, packet sizing, fusion, the channel
+and the counting of delivered readings; a protocol returns only a cluster
+structure, and a static audit confirms that no implementation touches the
+energy or liveness arrays. Trials are paired, so every protocol sees the same
+topology, shadowing and sensed-value stream, and differences are tested with
+sign-flip permutation, paired bootstrap intervals and Holm correction. Running
+the study at both endpoints of the one parameter the source specifications
+leave open, transmit power, retracts one of our own comparisons: the
+first-death advantage of the type-2 fuzzy protocol and the deep Q-network over
+LEACH is 417 and 426 rounds under packet loss and falls to 17 and 22 rounds, no
+longer significant, once loss is removed. Their advantage in overall survival
+and in readings delivered survives both channels. A 1{,}350-run sweep over
+three node counts and three field areas finds the same boundary from the other
+side: distance to the sink, not node density, sets the regime, and in a
+$50\times50$~m field clustering is worse than no clustering at all. Mechanisms
+are reported by measurement rather than argument, and the modeling choices that
+bound these results are disclosed in full.
 \end{abstract}
 
 \begin{IEEEkeywords}

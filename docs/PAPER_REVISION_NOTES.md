@@ -14,7 +14,7 @@ paper's own tables.
 ```
 paper/
   main.tex                      IEEEtran skeleton, pulls in sections + tables
-  refs.bib                      47 entries, all 47 now cited
+  refs.bib                      47 entries, all 47 cited
   sections/
     00_abstract.tex             abstract + index terms
     01_introduction.tex         I.   Introduction
@@ -24,7 +24,7 @@ paper/
     05_results.tex              V.   Results
     06_threats.tex              VI.  Threats to Validity
     07_conclusion.tex           VII. Conclusion
-  tables/                       12 generated tables (unchanged except em dashes)
+  tables/                       8 generated tables (4 cut for length, see §5)
 ```
 
 The section structure is the same seven sections the PDF already had. Nothing
@@ -244,28 +244,64 @@ comparison, which is the point being made, is the same in both.
 
 ---
 
-## 5. Length
+## 5. Length: the cut to 12 pages
 
-Body text is about 12,300 words. With 12 tables and 9 figures that lands near
-16 pages in IEEEtran two-column, roughly where the current PDF sits.
+The full revision ran to about 12,300 words of body text with 8 figures and 12
+tables, which lands near 16 pages. Getting to 12 needed both float cuts and a
+prose cut. Body text is now about 8,200 words.
 
-If you need 12 pages, cut in this order. Each item is self-contained.
+### Figures removed (8 to 4)
 
-1. §IV-F Verification, down to three sentences. Point at the repo. (~350 words)
-2. §IV-E A Measurement Artifact Worth Reporting, down to a footnote. It is a
-   good observation but it is about our harness, not about clustering. (~300)
-3. §V-F Cost and Latency, keep Table V and cut the prose to the one point that
-   matters, that counted operations and wall-clock disagree in sign. (~250)
-4. §II-F Latency, cut to the equation plus the lower-bound caveat. (~150)
-5. §VI-D Modelling Simplifications, merge the static-network and sensor-data
-   paragraphs. (~200)
-6. Drop Fig. 2 (alive nodes) and Fig. 8 (scale density); both duplicate a table.
+| removed | why it was safe |
+|---|---|
+| `fig1_alive_nodes` | The crossing of the two survival shapes is carried by Table III's FND/HND/LND/AUC columns and two sentences of prose. |
+| `figC_mechanism` | The retry-vs-tail scatter overlaps `figF`, and Table VIII prints retry% and tail% side by side. |
+| `figG_head_rotation` | Table XII is strictly more informative: busiest, median, never-served and Gini. |
+| `figE_scale_density` | It plotted the density-ordered table, which is itself now cut; the numbers are in the prose. |
 
-Do **not** cut, in order of how much a reviewer will miss them: §V-C the
-retraction, §V-D the DQN/GCN contrast, §V-G the regime boundary, §VI-A the
-control-traffic subsidy.
+Kept: `figA_per_curve` (the waterfall, which three sections depend on),
+`figB_fnd_distribution` (bimodality and the PEGASIS outlier, which no table
+shows), `figF_head_distance` (the corrected mechanism), `figD_scale_fnd` (the
+nine-cell separation).
 
----
+### Tables removed (12 to 8)
+
+| removed | why it was safe |
+|---|---|
+| `tab5_cost` | Full-width, so the most expensive table in the paper. The three numbers that carry the argument (NSGA-II 102.9 ms vs LEACH 0.82 ms; DQN 8,210 ops in 0.52 ms vs fuzzy 2,301 in 5.14 ms) are stated in the prose. |
+| `tab7_paired_robust` | 22 rows whose message is a single sentence: all 18 AUC and readings comparisons hold at the corrected floor in both channels, same direction. That sentence is now in V-C. |
+| `tab9_robustness` | 4 rows saying 4 of 40 ranks move, both near-ties. One clause. |
+| `tab11_scale_density` | The density-ordered re-presentation of a subset of `tab10`. The three numbers that matter (50 vs 44 nodes/ha differing 1.7x, 2.1x, 5.5x) are in V-F. |
+
+Kept: parameters, taxonomy, lifetime, delivery, paired FND, energy split, scale
+FND, head rotation. Every one of these backs a claim that would otherwise rest
+on prose alone.
+
+**Nothing else was removed.** No finding, and no number backing a finding, was
+dropped in the cut; what went was justification for design choices (which lives
+in `docs/`), derivations, and one paragraph of the control-traffic magnitude
+that was stated twice.
+
+### Estimated page count, and what to do if it misses
+
+**Estimate: 12.5 pages, plus or minus about one.** This is a model, not a
+measurement, because there is no LaTeX toolchain here. It works in column-area
+units, 550 words per column, roughly 0.45 column per single-column figure, and
+per-table areas from row counts, and it reproduces the 16-page PDF to within
+6%.
+
+If the compile comes out at 13 pages, the levers in order of least damage:
+
+1. Drop `tab4_delivery` (about 0.25 page). V-E already quotes the readings,
+   data yield and aggregation-ratio numbers in the prose.
+2. Drop Fig. 2 (`figB_fnd_distribution`, about 0.25 page). Costs the visual
+   evidence for GCN bimodality, which the prose then has to be trusted on.
+3. Cut IV-E Verification to its first clause and point at the repo (about 0.15
+   page).
+
+If it comes out at 12 or under, consider putting `tab7_paired_robust` back
+first; it is the counterweight to the retraction and is the table a skeptical
+reviewer is most likely to want.
 
 ## 6. Still open
 

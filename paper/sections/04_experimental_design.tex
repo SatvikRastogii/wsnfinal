@@ -3,35 +3,26 @@
 
 \subsection{Paired Trials}
 
-Every protocol is evaluated over 30 trials in each channel configuration, for
-600 runs in the headline study. The trials are paired rather than independent.
-Trial index $i$ seeds a single random stream that generates, in fixed order, the
+Every protocol is evaluated over 30 trials in each channel configuration, 600
+runs in the headline study, and the trials are paired rather than independent.
+Trial index $i$ seeds a single random stream generating, in fixed order, the
 node positions, the initial energies, the full per-link shadowing matrix and the
 sensed-value array for all rounds. That order depends only on $i$ and never on
-which protocol is being run, so at a given index all ten configurations face a
-byte-identical physical world. A protocol cannot see a different topology by
-virtue of being a different protocol.
+which protocol is running, so at a given index all ten configurations face a
+byte-identical physical world. Protocol-internal randomness comes from a
+separate stream derived by a keyed hash of run index and protocol name; Python's
+built-in hash is salted per process and is never used anywhere in the simulator,
+since it would silently destroy reproducibility across invocations.
 
-Protocol-internal randomness, meaning LEACH's election draws, the genetic
-operators and the $\varepsilon$-greedy exploration during training, comes from a
-separate stream derived by a keyed hash of the run index and protocol name.
-Python's built-in hash is salted per process and is never used anywhere in the
-simulator, since it would silently destroy reproducibility across invocations.
-
-The pairing is what licenses the statistical procedure in
-Section~\ref{sec:stats}, and it is a substantially stronger design than the
-unpaired mean-and-standard-deviation comparison this literature normally
-reports. Topology variance is large relative to the differences between
-protocols, and an unpaired test spends most of its power fighting variance that a
-paired design eliminates by construction.
-
-One thing is deliberately not shared: the per-packet channel draws. Different
-protocols make different numbers of draws per round, so there is no coherent
-sense in which two protocols could experience the same coin flips packet by
-packet. The fairness-critical quantity is the static per-link shadowing, which is
-identical. These are distinct claims, that the physical channel geometry is fair
-and that the exact sequence of random outcomes is fair, and only the first needs
-to hold.
+Pairing licenses the statistical procedure below and is substantially stronger
+than the unpaired mean-and-deviation comparison this literature reports:
+topology variance is large relative to the differences between protocols, and an
+unpaired test spends most of its power fighting variance a paired design
+eliminates by construction. The per-packet channel draws are deliberately not
+shared, since different protocols make different numbers of draws per round and
+there is no coherent sense in which two could experience the same coin flips
+packet by packet. The fairness-critical quantity is the static per-link
+shadowing, which is identical.
 
 \subsection{The Channel Sensitivity Pair}
 \label{sec:channel-pair}
@@ -47,171 +38,105 @@ power.
 \end{quote}
 
 Transmit power is a parameter the reference specifications do not fix, and
-Section~\ref{sec:channel} showed that the packet-error curve is a waterfall
-whose position determines how severely single-hop protocols are penalized on the
-sink hop. Choosing that parameter to make a metric discriminating would be
-precisely the calibration this study forbids. Running both endpoints and
-reporting only what survives removes the choice from the argument.
-Section~\ref{sec:results} reports one conclusion that the rule retracts.
+Section~\ref{sec:channel} showed the packet-error curve is a waterfall whose
+position determines how severely single-hop protocols are penalized on the sink
+hop. Choosing it to make a metric discriminating would be precisely the
+calibration this study forbids, and running both endpoints removes the choice
+from the argument. Section~\ref{sec:retraction} reports one conclusion the rule
+retracts.
 
 \subsection{The Node-Count and Field-Area Sweep}
 \label{sec:scale-design}
 
 A single operating point cannot tell a reader whether a result is about
-clustering or about one deployment. We therefore repeat the lossy study over a
-$3\times3$ grid of node counts $N \in \{50, 100, 150\}$ and square field sides
-$W \in \{50, 100, 150\}$~m, at 15 paired runs per cell, for a further 1{,}350
-runs. Four design decisions are worth stating because each one bounds what the
-sweep can conclude.
+clustering or about one deployment. We repeat the lossy study over a $3\times3$
+grid of node counts $N \in \{50, 100, 150\}$ and square field sides
+$W \in \{50, 100, 150\}$~m at 15 paired runs per cell, a further 1{,}350 runs.
 
-The base station scales with the field at $(W/2, 1.5W)$, which keeps the
-deployment geometrically self-similar. It also means field size sets channel
-severity as well as area: at $50\times50$~m the mean node-to-sink distance is
-52~m and no node lies beyond 120~m, at $100\times100$~m the mean is 104~m with
-33\% beyond, and at $150\times150$~m the mean is 156~m with 75\% beyond. That is
-a real confound between ``bigger area'' and ``worse channel''. We report the mean
-sink distance per cell so a reader can separate the two rather than engineering
-the confound away and losing self-similarity instead.
-
-The density radius feature scales with the field at $0.25W$. It is a
-configuration field read identically by every protocol, so scaling it is a shared
-environment choice rather than per-protocol tuning. Held fixed at 25~m it would
-cover 78\% of a $50\times50$ field and 9\% of a $150\times150$ one, silently
-changing what the feature means across the sweep.
-
-The DQN and the GCN use their frozen $N = 100$, $100\times100$ weights in every
-cell. No retraining happens anywhere in the sweep. This makes the sweep a
-measurement of out-of-distribution transfer rather than of retrained
-performance, and it is the reason the untrained fuzzy system matters as a
-control: a protocol with no training at all cannot suffer transfer failure, so if
-it moves the same way the learned ones do, the cause is the environment.
-
-Everything else is unchanged from the headline study. Run index $i$ seeds the
-topology, shadowing and sensed stream identically for every protocol within a
-cell, so comparisons inside a cell stay paired. Comparisons across cells are not
-paired, because a different $N$ means a different number of nodes to seed, and
-they are not tested as if they were.
+The base station scales with the field at $(W/2, 1.5W)$, keeping the deployment
+geometrically self-similar. This also means field size sets channel severity as
+well as area: mean node-to-sink distance is 52~m at $50\times50$~m with no node
+beyond 120~m, 104~m at $100\times100$~m with 33\% beyond, and 156~m at
+$150\times150$~m with 75\% beyond. That is a real confound between bigger area
+and worse channel, and we report mean sink distance per cell so a reader can
+separate the two rather than engineering the confound away and losing
+self-similarity instead. The density radius feature scales at $0.25W$, since
+held fixed at 25~m it would cover 78\% of a $50\times50$ field and 9\% of a
+$150\times150$ one, silently changing what the feature means; it is read
+identically by every protocol, so scaling it is a shared environment choice
+rather than per-protocol tuning. The DQN and GCN use their frozen $N = 100$,
+$100\times100$ weights in every cell with no retraining, which makes the sweep a
+measurement of out-of-distribution transfer and is why the untrained fuzzy
+system matters as a control: a protocol with no training at all cannot suffer
+transfer failure, so if it moves the same way the learned ones do, the cause is
+the environment. Comparisons inside a cell stay paired; comparisons across cells
+are not, because a different $N$ means a different number of nodes to seed, and
+are not tested as if they were.
 
 \subsection{Metrics}
 \label{sec:metrics}
 
-Lifetime is reported at three points, first, half and last node death, plus the
-area under the living-node curve, which is the integral of surviving nodes over
-rounds. All four are reported together because the three death points do not
-agree on an ordering, for reasons Section~\ref{sec:results} makes concrete. Runs
-that reach the round cap without full depletion are flagged as censored, and a
-censored last-death figure is a lower bound rather than a measurement; it is
-never averaged into a mean without the censoring count reported beside it.
+Lifetime is reported at first, half and last node death plus the area under the
+living-node curve, all four together because the three death points do not agree
+on an ordering. Runs reaching the cap without full depletion are flagged as
+censored, and a censored last-death figure is a lower bound, never averaged into
+a mean without the censoring count beside it.
 
-Delivery is reported in two units, and the distinction matters more than it
-appears to. Packets received at the sink measures aggregation depth, not
-delivery: one chain round delivers a single fused packet where one clustered
-round delivers roughly five, so on a packet basis the chain protocol appears five
-times worse while actually delivering more sensor readings. Original readings
-represented in delivered packets is the cross-protocol comparable quantity, and
-the packet count is reported only as an aggregation-ratio indicator.
+Delivery is reported in two units and the distinction matters. Packets received
+at the sink measures aggregation depth, not delivery: one chain round delivers a
+single fused packet where one clustered round delivers roughly five, so on a
+packet basis the chain protocol appears five times worse while actually
+delivering more readings. Original readings represented in delivered packets is
+the cross-protocol comparable quantity, which is why delivery ratio here is
+reading-based; the packet-based formula reported ten percent on a lossless
+channel purely because ten source readings became one packet. Suppressed
+readings count as losses in neither numerator nor denominator, since a reading
+never injected was never lost, and the cost of suppression appears instead in
+data yield, readings delivered over readings taken.
 
-The same defect once affected the delivery ratio, which is why it is now
-reading-based. The packet-based formula reported ten percent on a lossless
-channel, purely because ten source readings became one aggregated packet.
-Suppressed readings are not counted as losses in either numerator or
-denominator, since a reading that was never injected was never lost. The cost of
-suppression appears instead in data yield, defined as readings delivered over
-readings taken, which is the metric that legitimately penalizes the reactive
-protocols.
+Computational cost is reported as wall-clock setup time, counted algorithmic
+operations and analytical complexity, never merged, because wall-clock reflects
+implementation quality as much as algorithm design. Timing and memory are
+measured in separate runs, since allocation tracing inflated setup time by
+factors between 3.5 and 7.8 depending on how many small objects a protocol
+allocated, distorting the ranking rather than only the scale.
 
-Computational cost is reported in three separate forms that are never merged:
-measured wall-clock setup time and peak memory, counted algorithmic operations,
-and analytical complexity. Wall-clock reflects implementation quality as much as
-algorithm design; counted operations are more honest, and analytical complexity
-is the most honest of the three.
-
-\subsection{A Measurement Artifact Worth Reporting}
-
-Timing and memory are measured in separate runs, and the reason generalizes
-beyond this study. Allocation tracing intercepts every allocation and its
-overhead grows with the number of traced blocks, so measuring both in one run
-inflated setup time by factors between 3.5 and 7.8 depending on how many small
-objects a protocol allocated. The self-organizing map, which allocates roughly
-forty thousand temporary arrays per retraining, was hit hardest; the vectorized
-heuristics barely at all.
-
-Because the inflation was non-uniform, it distorted the ranking rather than only
-the scale. The GCN's true setup cost is about 35\% higher than LEACH's, but under
-tracing it measured about 30\% lower, so the sign of the comparison reversed. The
-resolution is that trial zero of each protocol measures memory and reports no
-timing, while the remaining trials do the reverse. Peak memory therefore comes
-from a single sample and has no defined deviation, and timing means are over
-$n-1$ trials. Simulation outcomes are unaffected, since tracing changes
-wall-clock only and never energy or delivery. We report this because any
-comparative study that profiles memory and time simultaneously is silently
-ranking its subjects by allocation count.
-
-\subsection{Statistical Procedure}
+\subsection{Statistical Procedure and Verification}
 \label{sec:stats}
 
-Because trials are paired, each comparison against a reference protocol reduces
-to a vector of 30 per-topology differences. The null hypothesis that the
-difference distribution is symmetric about zero is tested by a sign-flip
-permutation test~\cite{good2005permutation}: 20{,}000 random sign vectors are
-applied to the observed differences, and the $p$-value is the proportion of
-permuted means at least as extreme as the observed one, with the standard
-add-one correction to both numerator and denominator so that no $p$-value is ever
-reported as exactly zero. The floor at 30 paired samples is therefore
-$5\times10^{-5}$, and comparisons at that floor are reported as such rather than
-as zero.
+Because trials are paired, each comparison against a reference reduces to a
+vector of 30 per-topology differences. The null hypothesis that the difference
+distribution is symmetric about zero is tested by a sign-flip permutation
+test~\cite{good2005permutation} over 20{,}000 random sign vectors, with the
+standard add-one correction so no $p$-value is reported as exactly zero; the
+floor at 30 paired samples is $5\times10^{-5}$. The procedure was validated
+against exhaustive enumeration on a reduced sample, giving an exact $p$ of
+0.00391 against a sampled 0.00420. Confidence intervals come from 20{,}000
+paired bootstrap resamples~\cite{efron1993bootstrap}, and because nine
+comparisons are made against the reference within each metric and channel, all
+$p$-values are corrected by Holm-Bonferroni~\cite{holm1979stepdown}, giving a
+corrected floor of $p_{\mathrm{Holm}} = 0.00045$. Permutation was chosen over a
+paired $t$-test because it assumes only exchangeability, not normality, and
+several of these difference distributions are visibly skewed, the GCN's being
+bimodal; and over Wilcoxon signed-rank because it operates on the actual
+differences rather than their ranks, so the effect size and the test statistic
+are the same quantity~\cite{demsar2006statistical}.
 
-The procedure was validated against exhaustive enumeration on a reduced sample
-where all $2^n$ sign assignments are enumerable, giving an exact $p$ of 0.00391
-against a sampled 0.00420. Confidence intervals come from 20{,}000 paired
-bootstrap resamples of the same difference vector~\cite{efron1993bootstrap}.
-Because nine comparisons are made against the reference within each metric and
-channel, all $p$-values are corrected by the Holm-Bonferroni step-down
-procedure~\cite{holm1979stepdown}, which controls the family-wise error rate
-without assuming independence between comparisons. The corrected floor is
-therefore $p_{\mathrm{Holm}} = 0.00045$. Every statistic uses a fixed seed and is
-reproducible exactly.
+Seven gates were required to pass before any number here was read: energy
+conservation asserted every run to $10^{-9}$~J against~\eqref{eq:conservation};
+radio energies checked against hand computation on both sides of the crossover;
+an invariant suite over energy, liveness, death ordering and delivery range;
+determinism, which all nine protocols satisfy exactly across three repeats per
+seed; a static audit across eighteen checks confirming no protocol writes to the
+energy or liveness arrays or chooses its own packet sizes; independent
+recomputation of one protocol's summary row; and the packet-error curve asserted
+non-decreasing and strictly between zero and one somewhere in the band of sink
+distances, without which the channel would be a binary range switch and the
+lossy results would carry no information.
 
-Permutation was chosen over a paired $t$-test because it assumes only
-exchangeability under the null, not normality, and several of these difference
-distributions are visibly skewed; the GCN's first-death figures are bimodal
-across topologies. It was chosen over Wilcoxon signed-rank because it operates on
-the actual differences rather than their ranks, so the effect size and the test
-statistic are the same quantity~\cite{demsar2006statistical}.
-
-\subsection{Verification}
-
-Six gates were required to pass before any number in this paper was read.
-Energy conservation is asserted at the end of every single run to $10^{-9}$~J
-against the identity in~\eqref{eq:conservation}. Radio energies are checked
-against hand-computed values on both sides of the crossover distance. A suite of
-invariants confirms that energy never goes negative, that dead nodes never
-transmit, that the living count is monotone, that the three death points are
-ordered, and that delivery ratios remain in range. Determinism is verified by
-running every protocol three times per seed and diffing all per-round and
-summary fields, excluding only the timing and memory fields that are not
-expected to be reproducible; all nine protocols reproduce exactly. A static
-audit of the protocol source confirms that no implementation writes to the
-energy or liveness arrays, calls the charging function, or chooses its own
-packet sizes, across eighteen checks, all passing. Finally the aggregation
-pipeline is verified by recomputing one protocol's summary row independently and
-diffing at $10^{-9}$.
-
-A seventh gate exists specifically because of the lossy channel. The
-packet-error curve is emitted as a published artifact over 0 to 200~m and
-asserted to be non-decreasing, effectively zero at intra-cluster range, and
-strictly between zero and one somewhere in the band of sink distances. Had that
-last condition failed, the channel would be behaving as a binary range switch
-and the lossy results would carry no information.
-
-The engine, both learned models' forward and backward passes, and every
-statistic are implemented in NumPy~\cite{harris2020numpy}, with figures produced by
-Matplotlib~\cite{hunter2007matplotlib} and no other numerical dependency.
-The headline sweep of 600 runs completes in 80 minutes on sixteen cores, and the
-1{,}350-run scale sweep in 222 minutes on fourteen. All configuration constants
-live in a single frozen structure, no constant is defined anywhere else, and the
-raw per-round output of every run is retained rather than only the summaries. The
-central cell of the scale sweep reproduces the first 15 runs of the headline
-lossy study exactly for all ten protocols, on both first node death and area
-under the living-node curve, which is the check that the sweep harness and the
-headline harness are the same simulator.
+The headline sweep completes in 80 minutes on sixteen cores and the scale sweep
+in 222 on fourteen, with figures from Matplotlib~\cite{hunter2007matplotlib} and
+the raw per-round output of every run retained. The central cell of the scale
+sweep reproduces the first 15 runs of the headline lossy study exactly for all
+ten protocols, on both first node death and area under the living-node curve,
+which is the check that the two harnesses are the same simulator.
