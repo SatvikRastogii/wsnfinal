@@ -1,0 +1,215 @@
+\section{System Model}
+\label{sec:model}
+
+\input{tables/tab1_parameters}
+
+\subsection{Network and Energy}
+
+One hundred nodes are placed uniformly at random in a $100\times100$~m field.
+The base station sits outside the field at $(50, 150)$, so node-to-sink
+distances span 50 to 158~m. Every node begins with $E_0 = 1$~J and is stationary
+for the life of the network; nodes fail only by energy depletion. The
+configuration carries fields for two-level and three-level
+heterogeneity~\cite{smaragdakis2004sep,qing2006deec}, but they are disabled
+throughout this study, and every result reported here is for a homogeneous
+population. Table~\ref{tab:parameters} lists every parameter and its value.
+Nothing in it is protocol-specific, and no constant is defined anywhere outside
+the single frozen configuration object.
+
+A run proceeds in rounds. In each round every living node takes a sensor
+reading, the protocol under test decides the cluster structure, and the
+resulting transmissions are executed by the engine. A run terminates when the
+last node dies or at a cap of 7{,}000 rounds, whichever comes first.
+
+Energy is a linear reservoir with a single charging function. When a node is
+asked to spend more than it holds, it spends what remains, dies, and the packet
+in flight is lost. The alternative, refusing the transmission and stranding the
+remainder, was rejected because it breaks the conservation identity
+\begin{equation}
+\sum_i \left( E_0(i) - E_{\mathrm{res}}(i) \right)
+= E_{\mathrm{tx}} + E_{\mathrm{rx}} + E_{\mathrm{ctrl}}
++ E_{\mathrm{agg}} + E_{\mathrm{retry}},
+\label{eq:conservation}
+\end{equation}
+which is asserted at the end of every run to $10^{-9}$~J and is the primary
+correctness check on the whole simulator.
+
+\subsection{Radio Energy}
+
+We use the first-order model of Heinzelman et
+al.~\cite{heinzelman2000leach,heinzelman2002appspecific}. Transmitting $k$ bits
+over distance $d$ costs
+\begin{equation}
+E_{\mathrm{tx}}(k, d) =
+\begin{cases}
+k E_{\mathrm{elec}} + k \varepsilon_{\mathrm{fs}} d^{2}, & d < d_0 \\[2pt]
+k E_{\mathrm{elec}} + k \varepsilon_{\mathrm{mp}} d^{4}, & d \geq d_0
+\end{cases}
+\label{eq:radio}
+\end{equation}
+with $E_{\mathrm{rx}}(k) = k E_{\mathrm{elec}}$ and a fusion charge of
+$E_{\mathrm{DA}}$ per bit received. The crossover
+$d_0 = \sqrt{\varepsilon_{\mathrm{fs}}/\varepsilon_{\mathrm{mp}}} = 87.7$~m sits
+inside the range of node-to-sink distances, which is what makes cluster-head
+placement relative to $d_0$ a live variable rather than a formality. A head at
+100~m pays the fourth-power branch; one at 80~m does not. In the reference
+topology of seed~0, 36 of the 100 nodes fall inside $d_0$, and the expected
+fraction over the placement distribution is 32.7\%.
+
+The model is deliberately minimal and its omissions matter. There is no
+idle-listening cost, no sleep-wake transition energy, no radio startup and no
+processor energy. In real deployments idle listening often dominates the
+budget~\cite{ye2002smac,polastre2004bmac}, and including it would compress the
+differences between all nine protocols. We note this here rather than only in
+the limitations, because it bounds the interpretation of every energy figure
+that follows.
+
+\subsection{Channel}
+\label{sec:channel}
+
+Packet loss is derived from a link budget rather than assigned as a constant.
+Path loss follows a log-distance law with per-link
+shadowing~\cite{rappaport2002wireless},
+\begin{equation}
+PL(d) = PL_{1\mathrm{m}} + 10 n \log_{10} d + X_\sigma,
+\qquad X_\sigma \sim \mathcal{N}(0, \sigma^2),
+\label{eq:pathloss}
+\end{equation}
+giving a receive power of $P_t - PL(d)$ and an SNR against a $-105$~dBm noise
+floor. Bit errors follow the closed-form non-coherent BFSK
+expression~\cite{proakis2008digital}
+$\mathrm{BER} = \tfrac{1}{2}e^{-\gamma/2}$, and packet error follows
+$\mathrm{PER} = 1 - (1-\mathrm{BER})^{k}$, evaluated in the numerically stable
+form $-\mathrm{expm1}\!\left(k \ln(1-\mathrm{BER})\right)$. Non-coherent BFSK
+was chosen over BPSK because it is closed-form and needs no error function,
+which lets the entire channel be vectorized without a SciPy dependency. Since
+setup time is a reported metric, avoiding a heavyweight dependency in the inner
+loop is a fairness consideration as much as a convenience.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{figA_per_curve.png}
+\caption{Packet error rate against distance for a 4{,}000-bit packet, with the
+radio crossover $d_0 = 87.7$~m and the measured band of node-to-sink distances
+marked. The curve is a waterfall rather than a gradient: it is flat and
+effectively zero out to about 120~m and saturates by 158~m. Where a protocol
+places the far tail of its head-to-sink hop relative to that step decides how
+much it pays in retransmissions, which is why transmit power is treated as an
+experimental factor in Section~\ref{sec:design} rather than as a constant.}
+\label{fig:per}
+\end{figure}
+
+The resulting curve, plotted in Fig.~\ref{fig:per}, is a waterfall rather than a
+gradient. Without shadowing, PER for a 4{,}000-bit packet is
+$2.6\times10^{-8}$ at 100~m, $1.0\times10^{-3}$ at 120~m, 0.19 at 140~m and 0.97
+at 158~m. The transition from usable to useless spans about 3.6~dB of SNR and
+roughly 40~m of distance. Log-normal shadowing at $\sigma = 4$~dB smears that
+step into a distribution over links, and it is the source of the genuine
+per-topology variance in delivery ratio. Shadowing is drawn once per topology
+and held fixed, because the nodes are static; redrawing it per packet would
+model fast fading, which averages out over 7{,}000 rounds and would contribute
+nothing but noise. Failed packets are retried up to twice, for three attempts in
+total, and each attempt pays full transmit and receive energy. This is the
+mechanism that makes a lossy channel cost joules rather than only packets, and
+it is charged to a separate accounting category so that retry energy can be
+measured directly rather than inferred.
+
+Because path loss, shadowing and packet size are all fixed once the topology is
+built, PER and transmit energy are constant per link. Both are precomputed as
+lookup tables at construction and indexed in the round loop. This is a pure
+cache, the values are identical to recomputing them, and it consumes no random
+draws, so it cannot perturb the seeding order described in
+Section~\ref{sec:design}.
+
+\subsection{Control-Traffic Accounting}
+\label{sec:control}
+
+Control traffic is charged by the engine according to the protocol's declared
+class, not by the protocol itself, and both endpoints pay.
+
+Distributed protocols pay a full handshake every round. The head broadcasts an
+advertisement priced at the distance to its farthest joiner and every living
+non-head pays a receive charge per advertisement heard; each member sends a join
+request and the head receives it; the head then broadcasts a TDMA schedule that
+every member receives. The chain protocol pays no handshake at all, but passes a
+leader token hop by hop along the chain, with sender and receiver charged on
+each link, plus a single sink broadcast on rounds where the chain is rebuilt.
+
+Centralized protocols skip the advertisement and join-request steps, since the
+sink has already told each node its assignment, and pay a single sink broadcast
+on re-clustering rounds. They do still pay the per-round TDMA schedule broadcast
+under identical pricing to the distributed case, including the same skip for
+heads with no members. Their uplink node state, meaning residual energy and
+position-derived features, is treated as piggybacked on data traffic the network
+already sends and is charged nothing.
+
+The subsidy is therefore narrower than ``centralized protocols pay almost no
+control traffic''. It is specifically the advertisement, the join request and
+the uplink report, which is why the measured control-energy share of the
+centralized five is 2.33\% to 3.95\% rather than zero.
+
+That choice is the single largest modeling decision in the paper and we state
+its magnitude rather than only its existence. A separate 200-bit status report
+per node per round, over a sink distance above 100~m and therefore on the
+fourth-power branch, costs about $3.6\times10^{-5}$~J per node per round, which
+accumulates to roughly a quarter of the entire 1~J budget across the round cap.
+Charging it would sink all five centralized protocols for a reason unconnected
+to the quality of their clustering. Not charging it grants them an advantage we
+measure in Section~\ref{sec:validity} and that must be read alongside every
+cross-class comparison.
+
+\subsection{Sensed Data}
+
+Each node's reading follows a discrete Ornstein-Uhlenbeck
+process~\cite{uhlenbeck1930brownian},
+\begin{equation}
+v(r) = v(r-1) + \theta\left(\mu - v(r-1)\right) + \mathcal{N}(0, \sigma^2),
+\label{eq:ou}
+\end{equation}
+with a stationary distribution of approximately $\mathcal{N}(50, 6.4^2)$. A pure
+random walk was rejected: over 7{,}000 rounds it drifts by roughly 167 units and
+pegs against any clipping bound, which would make the reactive protocols'
+behavior an artifact of the clip rather than of their thresholds. The threshold
+parameters of TEEN and APTEEN are set against this stationary distribution, a
+hard threshold at $+0.78\sigma$ and a soft threshold at $0.16\sigma$, and were
+not adjusted after observing any result. The full sensed stream for all rounds
+is generated once per topology, so every protocol reads byte-identical sensor
+values.
+
+\subsection{Latency}
+
+Latency is analytic rather than queueing-based:
+\begin{equation}
+L = s \cdot T_{\mathrm{slot}} + h \cdot (T_{\mathrm{tx}} + T_{\mathrm{proc}}),
+\label{eq:latency}
+\end{equation}
+where $s$ is the sender's TDMA slot index and $h$ its hop depth. Slot length is
+derived from the bit rate rather than assumed, at $4000/250{,}000 = 16.0$~ms of
+transmit time plus a 4~ms guard. A cluster head's own packet carries a slot index
+equal to its member count, since it can forward only after every member slot has
+elapsed; this is what makes cluster latency scale with cluster size. The chain
+protocol uses a slot index of zero and accumulates delay through hop depth
+instead. There is no queueing delay, no MAC contention, and retransmissions cost
+energy but not modeled time, so the absolute figures are lower bounds and only
+the ordering should be read.
+
+\subsection{Engine-Enforced Invariants}
+\label{sec:invariants}
+
+Three rules are enforced by the engine and cannot be bypassed by a protocol
+implementation.
+
+First, transmissions within a round execute sorted by hop depth and then by node
+index, not by node index alone. Plain index ordering breaks causality whenever a
+forwarding node's index falls below one of its senders', which occurs for
+roughly half of all head-member pairings on a random topology and silently
+corrupts fusion totals. A runtime check raises if any node forwards while
+inbound packets remain pending.
+
+Second, a node that receives data may emit at most one outgoing data packet and
+pays the fusion charge on every bit it received.
+
+Third, the count of original readings represented in a delivered packet is
+computed by the engine from a boolean flag on each transmission, not declared by
+the protocol. An earlier version allowed protocols to declare it, which would
+have let a protocol inflate its own delivery figures.

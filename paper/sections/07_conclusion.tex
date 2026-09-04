@@ -1,0 +1,77 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We built a single simulation engine in which nine clustering protocols spanning
+twenty-five years of design practice execute under provably identical physical
+conditions, and evaluated them over 600 runs across two channel configurations
+and a further 1{,}350 runs across nine deployment scales. The engine owns energy
+accounting, packet sizing, fusion charges, the channel and reading accounting; a
+protocol returns only a cluster structure. Fairness is therefore a property of
+the construction rather than of the authors' care, and it is verified by static
+audit rather than asserted.
+
+Five findings hold up.
+
+Clustering does not extend network lifetime so much as redistribute it. LEACH
+delays first node death by a factor of 9.2 over direct transmission while
+bringing last death forward by nearly a third, because about a third of the
+nodes lie close enough to the sink to transmit on the free-space branch and are
+penalized rather than helped by rotation. No single lifetime figure summarizes
+this, and the two most commonly reported figures order the protocols in opposite
+directions.
+
+The advantage of the soft-computing and learned protocols over LEACH in first
+node death is conditional on the channel. Under packet loss the fuzzy system and
+the Q-network improve on LEACH by 417 and 426 rounds; with loss removed the same
+comparisons give 17 and 22 rounds and lose significance. Direct measurement of
+the energy split shows why, and the explanation is not the one the mean
+distances suggest. Every protocol's mean head-to-sink distance sits below 120~m,
+where packet error is still effectively zero, so the mean cannot be the cause.
+The tails differ instead: LEACH puts 29.9\% of its head-rounds beyond 120~m and
+spends 6.39\% of its budget on retransmissions, against the Q-network's 5.1\% and
+2.31\%. The demonstrable skill of the newer protocols is keeping the far tail of
+the sink hop out of the error waterfall, and it pays in proportion to how lossy
+that hop is. Their advantage in overall survival and in readings delivered is not
+conditional; it holds in both configurations at the corrected significance floor.
+
+The same boundary appears from an independent direction when the deployment
+scales. Across three node counts and three field areas, tripling the node count
+moves first node death by a factor of 0.88 to 1.26 while tripling the field side
+moves it by a factor of 5 to 7, and cells of nearly equal density differ by up to
+5.5 times. Distance to the sink is the variable, not density. In a
+$50\times50$~m field, where nothing reaches the waterfall, the learned and
+soft-computing advantages collapse exactly as they do when packet loss is
+switched off, and clustering itself becomes counterproductive: the no-clustering
+baseline outlives LEACH in all three of those cells.
+
+Temporal credit assignment is worth measuring separately from representational
+capacity. The Q-network and the graph network consume identical features and
+differ only in architecture and training signal. The Q-network's first-death
+distribution spans 219 rounds; the graph network's spans 388 and is bimodal, and
+its busiest node serves as head 13.6 times as often as LEACH's while 13 nodes
+never serve at all. A single-round objective cannot represent deferring cost to
+extend lifetime even when rotation state is visible in its inputs.
+
+Reactive reporting buys lifetime at a price that must be reported alongside it.
+TEEN and APTEEN survive past the round cap in every trial with an area under the
+living-node curve more than three times LEACH's, at a data yield of 0.11 to 0.12
+against roughly 0.9 for the proactive protocols.
+
+The methodological point generalizes beyond these nine protocols. Running the
+entire study at both endpoints of an unspecified parameter, and committing in
+advance to report only what survives both, retracted a comparison that either
+endpoint alone would have supported. Simulation studies routinely fix such
+parameters silently; where the parameter sits near a nonlinearity, as transmit
+power does relative to the packet-error waterfall, the choice can decide the
+ranking. The cost of bracketing it was a doubled runtime, which at this scale is
+eighty minutes.
+
+The largest confound remaining is the accounting subsidy granted to centralized
+protocols, worth nine to ten percentage points of the energy budget. An ablation
+that charges the uplink honestly would convert it from a caveat into a
+measurement, and is the most valuable extension of this work. Sweeping transmit
+power across several intermediate values would trace the curve that the two
+channel endpoints only bracket.
+
+All configuration constants, per-round outputs, verification artifacts and the
+packet-error calibration curve are released with the code.

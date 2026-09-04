@@ -147,9 +147,13 @@ moving pairs are near-ties (`results/analysis/channel_robustness.csv`).
   later first death, earlier last death. Report all three lifetime points.
 - **PDR is survivorship-biased.** Distant nodes lose packets and die first, so burning out far nodes
   early *improves* PDR. Never report it without the alive-node curve.
-- **NSGA-II converges only modestly** (population-best round energy improves 0.70%, minimum CH
-  energy 3.1%; only cluster-size balance moves substantially, 5.9 → 1.79). Real finding about the
-  landscape: with 5 heads from 100 candidates, random initialization already lands near-good.
+- **NSGA-II converges only modestly** (over the logged mid-run reclustering in
+  `results/validation/nsga2_convergence.csv`: population-best round energy improves 1.76%, minimum
+  CH energy 3.61%; only cluster-size balance moves substantially, best 2.99 → 1.85 and knee
+  9.19 → 5.58). Real finding about the landscape: with 5 heads from 100 candidates, random
+  initialization already lands near-good. NOTE: the figures here were previously 0.70% / 3.1% /
+  5.9 → 1.79, which predate the move of convergence logging off round 0 and match no shipped
+  artifact. Read them from the CSV, not from memory.
 - **TEEN/APTEEN censor at the 7000-round cap** in all runs. `lnd` is a lower bound there; never
   average it without reporting `n_censored_runs`.
 

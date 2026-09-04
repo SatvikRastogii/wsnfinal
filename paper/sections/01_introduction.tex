@@ -1,0 +1,145 @@
+\section{Introduction}
+\label{sec:intro}
+
+A wireless sensor node spends most of its energy on its radio, and in nearly all
+deployments its battery cannot be replaced~\cite{akyildiz2002survey}. Lifetime
+is therefore decided by how the network organizes its transmissions rather than
+by any property of the sensing hardware. Clustering is the standard response:
+nodes elect a subset of themselves as cluster heads, members send short-range
+packets to their head, and the head fuses them into one packet and pays the
+single expensive transmission to the base station. Because that role is
+expensive it has to rotate, and the question every clustering protocol answers
+is which nodes should carry it this round.
+
+Twenty-five years of answers fall into three broad generations. The first is
+heuristic. LEACH rotates the role by an independent probabilistic threshold with
+an epoch constraint~\cite{heinzelman2000leach}; PEGASIS abandons clusters
+entirely for a greedy chain in which each node talks only to its nearest
+neighbor~\cite{lindsey2002pegasis}; TEEN and its extension APTEEN leave the
+topology alone and instead suppress transmissions that fall below a sensed-value
+threshold~\cite{manjeshwar2001teen,manjeshwar2002apteen}. Later heuristics
+such as HEED refine the election rule without changing its
+character~\cite{younis2004heed,abbasi2007clustering}. The second generation
+replaces the heuristic with an explicit objective. Head selection is posed as a
+multi-objective optimization problem and solved with
+NSGA-II~\cite{deb2002nsga2}, or encoded in a type-2 fuzzy rule base that reasons
+over residual energy, distance and local density under linguistic
+uncertainty~\cite{mendel2002type2,karnik2001centroid}. The third generation
+learns the selection function instead of specifying
+it~\cite{alsheikh2014ml}: a self-organizing map places heads by
+unsupervised vector quantization~\cite{kohonen1990som}, a deep Q-network treats
+rotation as a sequential decision problem~\cite{mnih2015dqn,sutton2018rl}, and
+a graph convolutional network scores candidates from the topology's adjacency
+structure~\cite{kipf2017gcn,wu2021gnnsurvey}.
+
+The generations are usually compared by reading their published tables side by
+side, and that comparison does not hold. Each protocol was proposed against a
+different simulator, field size, node count, packet length and energy
+budget~\cite{kurkowski2005incredibles,pawlikowski2002credibility,andel2006credibility},
+almost always
+against LEACH alone, and almost always on a lossless channel. More
+consequentially, the assumptions that decide the outcome are rarely stated.
+Whether a centralized protocol is charged for the uplink that tells the base
+station each node's residual energy can be worth a quarter of the entire energy
+budget over a long run. Whether fusion is lossless in bits determines how much a
+chain protocol gains over a clustered one. Whether lifetime is reported at first
+death, half death or last death can reverse a ranking outright, and the author
+chooses which to report. A margin obtained under one set of these choices is not
+evidence about the algorithm; it is partly evidence about the harness.
+
+This paper measures the three generations in one harness. Nine protocols
+spanning all of them, plus a direct-transmission baseline, run on a single
+engine over 30 paired trials in each of two channel configurations, for 600 runs
+in the headline study, and over a further 1{,}350 runs in a node-count by
+field-area sweep. Run index $i$ seeds the topology, the per-link shadowing and
+the entire sensed-value stream identically for every protocol, so a comparison
+at a given index is genuinely paired rather than an average over unrelated
+worlds. Fairness is enforced structurally instead of by convention: the engine
+owns energy accounting through a single charging function, packet sizing, the
+aggregation charge, the channel and its ARQ retries, and the counting of
+delivered readings. A protocol returns only a cluster structure and a route
+shape, and a static audit verifies that no protocol implementation writes to the
+energy or liveness arrays. Every protocol runs on the same numerical substrate,
+hand-written NumPy including the backpropagation for both learned models,
+because per-round setup time is a reported metric and mixing frameworks would
+corrupt it. No protocol is tuned to reproduce any published number;
+disagreement with the source tables is expected and is not treated as error.
+
+We also state up front the one assumption that most favors part of the field.
+Centralized protocols are not charged for the uplink that carries node state to
+the sink, because that state is treated as piggybacked on data traffic the
+network already sends. This is the standard convention in the centralized
+clustering literature, but it is still a choice, and Section~\ref{sec:validity}
+measures what it is worth: LEACH spends 12.73\% of its consumed energy on
+control traffic against 2.33\% to 3.95\% for the centralized five, so every
+comparison that crosses those classes carries a subsidy of roughly nine to ten
+percentage points of the budget.
+
+Five results are worth stating before the details.
+
+Transmit power is not a background parameter but a determinant of the ranking.
+Repeating the entire study on a lossless channel removes the first-death
+advantage of the type-2 fuzzy protocol and of the DQN over LEACH altogether:
+$+417$ and $+426$ rounds at $p_{\mathrm{Holm}} = 0.00045$ under packet loss,
+falling to $+17$ and $+22$ rounds and no significance once loss is removed.
+
+Direct measurement of where the energy goes explains why, and the explanation is
+not the obvious one. Packet error is effectively zero below 120~m, and every
+protocol's \emph{mean} head-to-sink distance sits below that, so the mean cannot
+be the cause. The tail can. LEACH puts 29.9\% of its head-rounds beyond 120~m
+and spends 6.39\% of its budget on retransmissions; the DQN puts 5.1\% of its
+head-rounds out there and spends 2.31\%. Across the six single-hop protocols the
+share of head-rounds beyond 120~m predicts retry energy share with $r = 0.95$.
+What the newer protocols demonstrably do well is keep the far tail of the
+head-to-sink hop out of the error waterfall, and that skill pays only in
+proportion to how lossy the hop is.
+
+The effect is specific to first death. Differences in area under the alive-node
+curve and in readings delivered hold at $p_{\mathrm{Holm}} = 0.00045$ in both
+channels.
+
+No single lifetime figure summarizes clustering, because it buys a later first
+death by bringing the last death forward. LEACH reaches first death at 1{,}046
+rounds against the baseline's 114, a factor of 9.2, while dying out completely
+at 2{,}191 rounds against the baseline's 3{,}202. The GCN is the extreme case,
+with a first death 3.1 times earlier than LEACH's and a last death 45\% later.
+
+Finally, the advantage of clustering is a property of an operating regime rather
+than of clustering as such. Across a $3\times3$ grid of node counts and field
+areas, tripling the node count moves first death by a factor of 0.88 to 1.26
+while tripling the field side moves it by a factor of 5 to 7. In the
+$50\times50$~m field, where no link reaches the error waterfall, LEACH is
+outlived by the no-clustering baseline.
+
+The reactive protocols sit outside all of this because they survive by not
+reporting: TEEN and APTEEN fail to reach last death within the 7{,}000-round cap
+in all 30 trials, at a data yield of 0.11 and 0.12 against roughly 0.9 for the
+proactive protocols.
+
+The contributions are as follows. First, a single simulation engine in which
+nine clustering protocols from three methodological generations execute under
+provably identical physical conditions, with fairness enforced by construction
+rather than by author discipline. Second, a paired experimental design, common
+topology, shadowing and sensed-data stream per trial index, analyzed with paired
+sign-flip permutation tests, paired bootstrap intervals and Holm correction
+across the protocol family, in place of the unpaired mean-and-deviation
+comparison the literature normally reports. Third, a channel sensitivity pair
+run as a rule rather than as an appendix: a conclusion that survives both the
+lossy and the ideal configuration is a statement about the protocol, and one
+that flips is a statement about transmit power. Applying the rule retracts a
+comparison that the lossy channel alone would have supported. Fourth, a
+node-count by field-area sweep that identifies the regime boundary from an
+independent direction and tests whether the frozen learned policies transfer off
+their training distribution. Fifth, mechanistic explanations obtained by
+measurement rather than argument, including the energy split by category, the
+distribution of cluster-head distance relative to the radio crossover, and
+cluster-head rotation concentration. Sixth, a full disclosure of the modeling
+choices that bound these results, ordered by how far each could move a
+conclusion, together with the reproduction artifacts.
+
+Section~\ref{sec:model} describes the system and radio model,
+Section~\ref{sec:protocols} the nine protocols and their fairness-relevant
+implementation details, Section~\ref{sec:design} the experimental design and
+statistical procedure, Section~\ref{sec:results} the results,
+Section~\ref{sec:validity} the threats to validity, and
+Section~\ref{sec:conclusion} concludes.

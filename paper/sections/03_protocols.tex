@@ -1,0 +1,158 @@
+\section{Protocols Under Comparison}
+\label{sec:protocols}
+
+\input{tables/tab2_taxonomy}
+
+Nine protocols are implemented, spanning three methodological generations, plus
+a direct-transmission baseline in which every node sends its own reading
+straight to the sink. The baseline exists to establish what clustering is worth
+at all, and it turns out to be a more informative control than expected
+(Section~\ref{sec:results}). Table~\ref{tab:taxonomy} sets out the ten
+configurations against class, control-traffic model, re-clustering cadence and
+whether pre-training is used.
+
+All nine share one structural contract. Each targets the same nominal cluster
+count $k = \max(1, \mathrm{round}(p \cdot N_{\mathrm{alive}}))$, recomputed each
+round from the living population so that $k$ decays as the network dies.
+Membership is always nearest-head by Euclidean distance. What each protocol
+returns to the engine is a set of head identities and a membership map, nothing
+else; energy, packet sizing, fusion charges, the channel and reading accounting
+are the engine's, as described in Section~\ref{sec:invariants}. Realized head
+counts are not forced to match the target, because clamping LEACH's stochastic
+election would be implementing a different algorithm.
+
+\subsection{Generation One: Heuristics}
+
+LEACH~\cite{heinzelman2000leach} implements the paper's election threshold
+unmodified. A node that has not yet been a head in the current epoch self-elects
+with probability $T(n) = p/(1 - p(r \bmod 1/p))$, and the ``already served'' set
+clears every $1/p = 20$ rounds, dropping any node that has died meanwhile. This
+is worth stating precisely because the epoch mechanism turns out to be LEACH's
+real strength: it guarantees each surviving node serves exactly once per epoch,
+which is close to optimal for the first-death metric specifically, and no other
+protocol here has an equivalent guarantee.
+
+PEGASIS~\cite{lindsey2002pegasis} abandons clusters. A greedy chain is built
+from the node farthest from the sink, repeatedly appending the nearest unchained
+living node. Since positions are static, the only event that can invalidate a
+chain is a death, so the chain is rebuilt exactly when the living count drops.
+The leader rotates round-robin over chain positions. Data flows inward from both
+ends toward the leader and fuses at every intermediate hop, so each non-leader
+emits exactly one packet and the entire network's readings reach the sink in a
+single transmission. PEGASIS is the sole multi-hop protocol in the study and the
+sole beneficiary of the ideal-fusion assumption at full scale.
+
+TEEN~\cite{manjeshwar2001teen} subclasses LEACH and reuses its clustering
+unchanged. This is not an implementation shortcut but the correct reading of the
+protocol: TEEN's contribution is entirely the reporting rule, and holding
+clustering fixed makes the comparison a controlled one. A node transmits only
+when its reading exceeds a hard threshold and has moved by at least a soft
+threshold since its last actual transmission. APTEEN~\cite{manjeshwar2002apteen}
+adds the periodic half, so a node also transmits if it has been silent for a
+count-time interval, which means a node that never crosses the hard threshold
+still reports at least once every 50 rounds. Only the reporting-frequency
+mechanism is modeled; APTEEN's attribute-based and historical query facilities
+are out of scope and are declared as such.
+
+\subsection{Generation Two: Explicit Optimization}
+
+NSGA-II~\cite{deb2002nsga2} poses head selection as a genuine multi-objective
+problem, solved with the full algorithm, meaning fast non-dominated sort,
+crowding distance, binary tournament selection and elitist $(\mu + \lambda)$
+survival, rather than a weighted sum standing in for it. A genome is a vector of
+$k$ distinct living node indices, so cardinality is fixed by construction and no
+repair operator is required. Three objectives are minimized: the total energy of
+one round under the candidate assignment, the negated minimum residual energy
+among selected heads, and the standard deviation of cluster membership counts.
+
+The third objective was chosen against the more common intra-cluster distance
+variance, for a reason worth recording. Distance already dominates the first
+objective through the $d^2$ and $d^4$ terms, and a second strongly correlated
+distance objective would collapse the Pareto front toward a line and waste the
+multi-objective machinery. Membership-count spread is genuinely orthogonal,
+because it measures load balance rather than geometry. The first objective is
+computed by calling the engine's own radio functions, so the search optimizes
+exactly the cost model it will later be charged against rather than an
+approximation of it. Selection from the final front is by knee point: each
+objective is normalized across the front and the individual nearest the ideal
+point is taken. This is deterministic and introduces no hand-tuned weights,
+which would have been a back door to calibrating against published results.
+Evolutionary and swarm formulations of this problem have a long
+history~\cite{ferentinos2007ga,kulkarni2011pso}; what is new here is not the
+formulation but that it is charged against the same engine as everything else.
+
+Interval type-2 fuzzy selection scores every living node from residual energy,
+distance to sink and local density, with Gaussian membership functions of
+uncertain mean, a 10\% footprint of uncertainty, Karnik-Mendel iterative type
+reduction and midpoint
+defuzzification~\cite{karnik2001centroid,wu2009ekm,mendel2002type2}. The 27-rule
+base is generated by $\mathrm{score} = 2E + (2 - D) + D_n$ over three-level
+inputs, giving a table monotone in every input by construction. Monotonicity is
+what makes the rule base defensible without tuning; the double weight on
+residual energy is a designer's choice and we label it as one rather than
+presenting it as derived. Fuzzy head election has an established line of work in
+this setting~\cite{gupta2005fuzzy,kim2008chef,bagci2013eaucf}, and our
+contribution is not the rule base but its measurement under the same harness as
+everything else.
+
+\subsection{Generation Three: Learned Selection}
+
+SOM~\cite{kohonen1990som} trains a Kohonen map with $k$ units on a
+one-dimensional chain neighbourhood over normalized position and residual
+energy, one hundred iterations with geometrically decaying learning rate and
+radius, retrained from scratch on the same five-round cadence as NSGA-II and the
+fuzzy system. The node nearest each converged unit becomes a head. It is the
+least sophisticated of the three learned methods and, as Section~\ref{sec:results}
+shows, the one whose weakness is most legible.
+
+DQN~\cite{mnih2015dqn,watkins1992qlearning} and GCN~\cite{kipf2017gcn} are
+deliberately built to isolate a single difference. Both consume the identical
+four normalized features, namely residual energy, distance to sink, local
+density and rounds since last serving as head, with the GCN importing the DQN's
+feature function rather than redefining it. Both use hand-written forward and
+backward passes verified against central finite differences, and both are
+trained on seeds 100 to 129, frozen, and evaluated on the disjoint seeds 0 to
+29. What differs is only the architecture and the training signal.
+
+The DQN is a $4 \rightarrow 16 \rightarrow 2$ multilayer perceptron trained with
+experience replay, a periodically synchronized target network, Adam~\cite{kingma2015adam}
+and $\gamma = 0.999$. At evaluation it does not let each node act on its own
+greedy action, which would make the head count fluctuate anywhere between zero
+and the entire population. Instead nodes are ranked by the advantage
+$Q_{\mathrm{CH}} - Q_{\overline{\mathrm{CH}}}$ and the top $k$ are selected.
+This makes it a learned ranking function rather than a set of independent
+agents, which is a real narrowing of the reinforcement-learning
+framing~\cite{luong2019drl} and is documented as such rather than glossed over.
+
+The GCN is two graph-convolutional layers of width 16 over a symmetrized
+6-nearest-neighbor graph with the standard symmetric-normalized propagation
+rule, trained self-supervised against a differentiable proxy for energy balance.
+It is deliberately not trained to imitate a heuristic, since doing so would make
+any subsequent comparison against that heuristic vacuous, and it shares no code
+path with the DQN's training loop. Selection is greedy top-$k$ by score subject
+to a 15~m minimum separation, and if separation exhausts the candidate pool,
+fewer than $k$ heads are accepted rather than padding the set back up.
+
+The contrast this construction buys is the paper's cleanest. With identical
+inputs, the DQN has temporal credit assignment and the GCN does not. The GCN can
+see rotation state through its fourth feature, but nothing in its single-round
+loss rewards acting on it. Section~\ref{sec:results} measures what that costs.
+
+\subsection{Disclosure on the DQN's Hyperparameters}
+\label{sec:dqn-disclosure}
+
+One protocol's parameters were revised after observing a failure, and we state
+it rather than let it be inferred~\cite{henderson2018matters}. The initial
+configuration used $\gamma = 0.95$, an effective horizon of about twenty rounds
+against a first-death timescale three orders of magnitude longer, and it
+diverged. The fix raised $\gamma$ to 0.999, normalized the return magnitude, and
+extended training from 30 to 100 episodes. The reward function itself, which
+combines round energy, residual-energy spread across living nodes and a death
+penalty, was not changed.
+
+At that point a stopping rule was fixed in advance: the result would be recorded
+as final regardless of outcome, with no further changes to reward, architecture,
+features or hyperparameters. It was then evaluated on five held-out seeds,
+beating random head rotation on all five. Stating the pre-commitment is what
+makes that number credible. Without it, ``we fixed the DQN until it worked'' and
+``we fixed a divergence and stopped'' are indistinguishable from the outside.
