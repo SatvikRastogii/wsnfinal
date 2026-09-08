@@ -33,16 +33,16 @@ living-node curve beside it.
 
 \subsection{Lifetime Across the Three Generations}
 
-\begin{figure}[!t]
+\begin{figure*}[!t]
 \centering
-\includegraphics[width=\columnwidth]{figB_fnd_distribution.png}
+\includegraphics[width=\textwidth]{figB_fnd_distribution.png}
 \caption{First node death per trial, lossy channel, all 30 paired trials shown
 individually rather than as a mean and a deviation. The reactive pair leads, the
 GCN is visibly bimodal, and PEGASIS carries one topology at 449 rounds against a
 body near 1{,}800. A mean and standard deviation describes none of these three
 distributions correctly.}
 \label{fig:fnd-dist}
-\end{figure}
+\end{figure*}
 
 Table~\ref{tab:lifetime} gives the full lossy-channel results. Against LEACH,
 with paired permutation testing and Holm correction across the family, every
@@ -215,15 +215,15 @@ because chain depth dominates.
 
 \input{tables/tab10_scale_fnd}
 
-\begin{figure}[!t]
+\begin{figure*}[!t]
 \centering
-\includegraphics[width=\columnwidth]{figD_scale_fnd.png}
+\includegraphics[width=\textwidth]{figD_scale_fnd.png}
 \caption{First node death across the nine cells, log scale, color by generation.
 Moving between field sizes shifts every protocol by roughly an order of
 magnitude; moving between node counts within a field size barely moves anything.
 The reactive pair reverses rank between the smallest and largest fields.}
 \label{fig:scale-fnd}
-\end{figure}
+\end{figure*}
 
 The headline study measures one deployment. The $3\times3$ sweep asks which of
 its conclusions are about clustering and which are about that deployment, and
