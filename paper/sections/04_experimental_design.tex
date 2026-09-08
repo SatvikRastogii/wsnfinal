@@ -94,10 +94,10 @@ readings count as losses in neither numerator nor denominator, since a reading
 never injected was never lost, and the cost of suppression appears instead in
 data yield, readings delivered over readings taken.
 
-Computational cost is reported as wall-clock setup time, counted algorithmic
-operations and analytical complexity, never merged, because wall-clock reflects
-implementation quality as much as algorithm design. Timing and memory are
-measured in separate runs, since allocation tracing inflated setup time by
+Computational cost is reported as wall-clock setup time and counted algorithmic
+operations, never merged, because wall-clock reflects implementation quality as
+much as algorithm design while the operation count does not. Timing is measured
+in a separate run from memory, since allocation tracing inflated setup time by
 factors between 3.5 and 7.8 depending on how many small objects a protocol
 allocated, distorting the ranking rather than only the scale.
 

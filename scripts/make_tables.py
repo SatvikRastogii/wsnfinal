@@ -164,13 +164,13 @@ def table_taxonomy() -> None:
     rows = [
         # name, gen, decision, control model, re-cluster, offline training
         ("Direct (no clustering)", "--", "None", "None", "--", "No"),
-        ("LEACH", "G1", "Randomised rotation", "Distributed", "Every round", "No"),
+        ("LEACH", "G1", "Randomized rotation", "Distributed", "Every round", "No"),
         ("PEGASIS", "G1", "Greedy chain", "Chain", "On death", "No"),
         ("TEEN", "G1", "LEACH + hard/soft threshold", "Distributed", "Every round", "No"),
         ("APTEEN", "G1", "TEEN + count-down timer", "Distributed", "Every round", "No"),
         ("NSGA-II", "G2", "Multi-objective search (3 obj.)", "Centralized", "Every 5 rounds", "No"),
         ("Fuzzy T2", "G2", "Interval type-2 rule base (27 rules)", "Centralized", "Every round", "No"),
-        ("SOM", "G3", "Self-organising map", "Centralized", "Every round", "Yes"),
+        ("SOM", "G3", "Self-organizing map", "Centralized", "Every round", "Yes"),
         ("DQN", "G3", "Learned $Q$-value ranking", "Centralized", "Every round", "Yes (frozen)"),
         ("GCN", "G3", "Learned graph scoring", "Centralized", "Every round", "Yes (frozen)"),
     ]
@@ -291,7 +291,12 @@ def _paired(metric: str) -> pd.DataFrame:
 
 
 def _sig(p):
-    return f"{p:.4f}" if p >= 1e-4 else "$<$0.0001"
+    # Small p needs five decimals, not four: the Holm-corrected floor is 0.00045
+    # and the prose quotes it as such, so rounding to 0.0004 makes the table look
+    # like it disagrees with the text. Larger p reads better at three.
+    if p < 1e-5:
+        return "$<$0.00001"
+    return f"{p:.5f}" if p < 0.001 else f"{p:.3f}"
 
 
 def table_paired_fnd() -> None:
@@ -322,7 +327,7 @@ def table_paired_fnd() -> None:
         "(20\\,000 permutations) with paired-bootstrap confidence intervals, "
         "Holm-corrected across the nine comparisons within each channel. "
         "\\textbf{Fuzzy T2 and DQN are significant under loss and not "
-        "significant without it} --- the study's central negative result.",
+        "significant without it}, which is the study's central negative result.",
         "tab:paired-fnd", body, wide=True))
 
 
@@ -406,7 +411,7 @@ def table_energy_split() -> None:
         "Where the energy goes and where the heads sit, measured by the "
         "engine's own accounting categories (seed 0, 1100 rounds). Packet "
         "error is near zero below 120~m, so the \\emph{mean} head distance "
-        "cannot explain the retry gap --- every mean is below that. The tail "
+        "cannot explain the retry gap, because every mean is below that. The tail "
         "can: across the six single-hop protocols, the share of head-rounds "
         "beyond 120~m predicts retry energy share with $r = 0.95$. PEGASIS "
         "is the exception that proves the rule: its leader rotates uniformly "
@@ -445,7 +450,7 @@ def table_head_rotation() -> None:
         "approximate: its epoch mechanism elects every node exactly once per "
         "20 rounds. GCN's busiest node serves 13.6 times as often, which is "
         "the direct cause of its early first node death "
-        "(Table~\\ref{tab:lifetime}) --- it does not choose badly, it "
+        "(Table~\\ref{tab:lifetime}): it does not choose badly, it "
         "chooses the same good node until that node dies.",
         "tab:head-rotation", body))
 
@@ -540,7 +545,7 @@ def table_scale_lifetime() -> None:
         "tab:scale-fnd", body, wide=True,
         note="The base station scales with the field at $(W/2,\\,1.5W)$, so "
              "field size sets channel severity as well as area. Node-to-sink "
-             "distance by field size --- " + "; ".join(sink) + ". At "
+             "distance by field size. " + "; ".join(sink) + ". At "
              "$50\\times50$~m no link reaches the error waterfall at all, "
              "which is why the advantage of the optimized and learned "
              "protocols over LEACH collapses there."))
@@ -574,7 +579,7 @@ def table_scale_density() -> None:
     _write("tab11_scale_density.tex", _float(
         "llrrrrr",
         "Cells ordered by node density. If density drove lifetime the rows "
-        "would trend with it; they do not --- the numbers track the mean sink "
+        "would trend with it; they do not. The numbers track the mean sink "
         "distance column instead. Averaged over all ten protocols, tripling "
         "the node count changes first node death by a factor of 0.88--1.26, "
         "while tripling the field side changes it by a factor of 5--7. The "
