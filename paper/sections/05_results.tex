@@ -20,7 +20,20 @@ never asked to relay anyone else's traffic and simply outlive everything LEACH
 produces; under rotation they subsidize the expensive far-field nodes. This is
 why every lifetime claim here is reported at three death points plus the area
 under the living-node curve: any single figure silently picks a winner, and the
-two most commonly reported figures pick opposite ones.
+two most commonly reported figures pick opposite ones
+(Fig.~\ref{fig:alive}).
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{fig1_alive_nodes.png}
+\caption{Living nodes against round, lossy channel, mean over 30 paired trials.
+The direct baseline loses its first node almost immediately and then decays
+slowly, while the clustered protocols hold a full population far longer and then
+collapse. The two shapes cross, which is why no single death point orders these
+protocols and why the area under this curve is reported beside all three.}
+\label{fig:alive}
+\end{figure}
+
 
 The baseline also gives the clearest illustration of survivorship bias in
 delivery statistics. Its delivery ratio of 96.9\% is the highest of any
@@ -174,7 +187,20 @@ node serves 16 rounds. It does not choose badly. It repeatedly chooses the same
 genuinely good node until that node dies, which is exactly the failure a
 single-round objective cannot see. The DQN, with the same four features
 including rounds since last serving as head, concentrates far less, at 223
-rounds on its busiest node and a Gini of 0.476.
+rounds on its busiest node and a Gini of 0.476, shown against LEACH's flat
+line in Fig.~\ref{fig:rotation}.
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{figG_head_rotation.png}
+\caption{Rounds served as cluster head per node over 1{,}100 rounds, seed 0,
+sorted. LEACH's epoch rule produces a flat line at exactly 55. The GCN is the
+opposite extreme, concentrating 750 rounds of head duty on one node while 13
+nodes never serve at all, which is precisely what a single-round objective is
+indifferent to.}
+\label{fig:rotation}
+\end{figure*}
+
 
 This is the paper's cleanest controlled contrast. The GCN can see rotation state
 in its input; what it lacks is any term in its loss that rewards deferring cost

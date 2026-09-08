@@ -25,7 +25,18 @@ for the map, 3.95\% for the DQN and 3.85\% for the GCN, so the subsidy is worth
 roughly nine to ten percentage points of the total budget. In packet terms the
 gap is starker, 171{,}644 control packets for LEACH against 9{,}657 to 12{,}216
 for the centralized five, but that overstates the effect, since control packets
-are a fifth the size of data packets and most are short-range.
+are a fifth the size of data packets and most are short-range
+(Fig.~\ref{fig:control}).
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{fig5_control_traffic.png}
+\caption{Control packets sent per protocol, lossy channel. The
+order-of-magnitude gap between the distributed and centralized classes is
+substantially an accounting artifact rather than a difference in clustering
+quality, which is what this section quantifies.}
+\label{fig:control}
+\end{figure}
 
 Two consequences follow. A claim of the form ``NSGA-II extends first death by
 80\% over LEACH'' conflates clustering quality with an accounting convention and
