@@ -12,6 +12,21 @@ V, VI, VII and VIII all render correctly.** If you have been worried about the
 tables looking scrambled when you copy text out of the PDF, that is an artifact
 of the extractor, not a defect in the paper.
 
+### 0. Read this first: your Overleaf source has drifted from this repo
+
+Two findings only make sense if the `.tex` and `.bib` you compiled from are not
+the ones in this repository:
+
+- The reference numbering follows `refs.bib` file order (1.1 below). Compiling
+  `paper/main.tex` from this repo does not do that.
+- Reference `[27]` prints an author `G. V. Bellemare` that does not exist in this
+  repo's `paper/refs.bib`, whose `mnih2015dqn` entry ends `Ostrovski, Georg and
+  Hassabis, Demis`.
+
+So the fastest route through most of this list is to **re-sync your Overleaf
+project with `paper/` from this repo** rather than patch the two copies
+separately. Items marked **[DONE]** below are already fixed in the repo source.
+
 Severity key: **[BLOCK]** a reviewer will raise it, **[FIX]** cheap and clearly
 wrong, **[ASK]** a reviewer may probe it, **[OPT]** improves the paper.
 
@@ -54,7 +69,7 @@ citation order on its own. The correct first fourteen become:
 [7] abbasi2007clustering   [14] sutton2018rl
 ```
 
-### 1.2 [BLOCK] Fig. 4 is unreadable at the size it is printed
+### 1.2 [BLOCK] [DONE] Fig. 4 is unreadable at the size it is printed
 
 **Where:** page 9, right column, Section V-F.
 
@@ -74,7 +89,7 @@ else:
 \end{figure*}                % was \end{figure}
 ```
 
-### 1.3 [BLOCK] Fig. 2 has the same problem
+### 1.3 [BLOCK] [DONE] Fig. 2 has the same problem
 
 **Where:** page 7, left column, Section V-B.
 
@@ -89,7 +104,7 @@ page; only the LaTeX environment is wrong.
 Page 13 currently ends about one third of the way down, so there is enough slack
 to absorb both without adding a page.
 
-### 1.4 [BLOCK] The paper promises analytical complexity and never reports it
+### 1.4 [BLOCK] [DONE] The paper promises analytical complexity and never reports it
 
 **Where:** Section IV-D says computational cost is reported in three forms,
 "wall-clock setup time, counted algorithmic operations and analytical
@@ -142,6 +157,10 @@ contribution.
 weakest of these, because it states the paper's opening result entirely in prose.
 
 ### What to add, in priority order
+
+**(a), (b) and (c) are now applied in the repo source.** The figure list is
+now seven, numbering in reading order: Fig. 1 II-C, Fig. 2 V-A, Fig. 3 V-B,
+Fig. 4 V-C, Fig. 5 V-D, Fig. 6 V-F, Fig. 7 VI-A.
 
 **(a) `fig1_alive_nodes` into Section V-A.** Highest value. The claim that
 clustering redistributes rather than extends lifetime rests on the two survival
@@ -205,7 +224,7 @@ All of these already exist under `results/analysis/`. Adding one is a
 
 ## 3. Correctness and consistency
 
-### 3.1 [FIX] Table V prints `0.0004` where the text says `0.00045`
+### 3.1 [FIX] [DONE] Table V prints `0.0004` where the text says `0.00045`
 
 **Where:** Table V, page 8, both `pHolm` columns, against Section V-C which says
 *"both at the corrected floor of pHolm = 0.00045"* and Section IV-E which says
@@ -316,7 +335,7 @@ addresses.
 
 ## 5. What a WSN reviewer will probe
 
-### 5.1 [ASK] "Why don't your LEACH numbers match Heinzelman's?"
+### 5.1 [ASK] [DONE] "Why don't your LEACH numbers match Heinzelman's?"
 
 This is the single most likely reviewer question, and the paper's answer is
 buried in Section VI-E. The non-calibration policy is a strength, but it reads
