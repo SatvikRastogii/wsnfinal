@@ -1,4 +1,4 @@
-"""Generate the Minor Project Second Defense deck (10 slides, 16:9).
+"""Generate the Minor Project Second Defense deck (12 slides, 16:9).
 
 Content follows the notice dated 3.9.2026: title, problem statement, abstract,
 introduction (scope/motivation/challenges), literature survey, technology stack,
@@ -507,29 +507,30 @@ def slide_prototype(prs):
             "which is why we report four lifetime measures rather than one.")
 
 
-def slide_results(prs):
+def slide_results_headline(prs):
     s = blank(prs)
-    header(s, "Four findings, and one of them retracts our own claim",
-           "Results So Far", 9)
+    header(s, "What we found, and the one thing we take back",
+           "Results I: Lifetime and the Channel", 9)
 
     tf = textbox(s, 0.62, 1.9, 7.05, 4.6)
     bullets(tf, [
         ("Clustering redistributes lifetime, it does not extend it. ",
          "LEACH reaches first node death at 1,046 rounds against the "
          "baseline's 114, a factor of 9.2. But its last node dies at 2,191 "
-         "against the baseline's 3,202."),
+         "against the baseline's 3,202, so the baseline outlasts it by 46%."),
         ("We retract one of our own comparisons. ",
          "The fuzzy system and the deep Q-network beat LEACH by 417 and 426 "
-         "rounds under packet loss. Remove the loss and the same comparisons "
-         "give 17 and 22 rounds, no longer significant."),
+         "rounds under packet loss, at the corrected floor. Remove the loss "
+         "and the same comparisons give 17 and 22 rounds, no longer "
+         "significant."),
         ("The cause is the tail, not the average. ",
          "Packet error is near zero below 120 m and every protocol's mean head "
-         "distance sits below that. LEACH puts 29.9% of its head-rounds beyond "
-         "120 m and spends 6.39% of its budget retransmitting; the Q-network "
-         "puts 5.1% out there and spends 2.31%."),
-        ("It is a regime, not a rule. ",
-         "In a 50 x 50 m field, where no link reaches the error waterfall, the "
-         "no-clustering baseline outlives LEACH."),
+         "distance sits below that, so the mean cannot be it. LEACH puts 29.9% "
+         "of its head-rounds beyond 120 m and spends 6.39% of its budget "
+         "retransmitting; the Q-network puts 5.1% out there and spends 2.31%."),
+        ("What survives both channels. ",
+         "Area under the alive-node curve and readings delivered: all 18 "
+         "comparisons hold at the corrected floor either way."),
     ], size=15, gap=12)
 
     picture_fit(s, os.path.join(FIGS_PAPER, "figF_head_distance.png"),
@@ -548,9 +549,89 @@ def slide_results(prs):
           size=13, color=RUST, bold=True, space=0, line=1.15)
 
 
+def slide_results_scale(prs):
+    s = blank(prs)
+    header(s, "The same boundary, found from a completely different direction",
+           "Results II: Scale", 10)
+
+    left = [
+        ("1,350 more runs. ",
+         "Three node counts by three field areas, 15 paired runs per cell, "
+         "with the learned policies frozen at their 100-node weights."),
+        ("Area beats node count about five to one. ",
+         "Tripling the nodes moves first death by 0.88 to 1.26 times. "
+         "Tripling the field side moves it by 5 to 7."),
+    ]
+    right = [
+        ("Distance to the sink is the variable, not density. ",
+         "Density spans a factor of 27 and explains almost none of it."),
+        ("Clustering is harmful when the sink is close. ",
+         "At 50 x 50 m the no-clustering baseline outlives LEACH in all three "
+         "cells, so the retraction reproduces without touching the channel."),
+    ]
+    for x, items in ((0.62, left), (6.95, right)):
+        tf = textbox(s, x, 1.9, 5.78, 1.9)
+        bullets(tf, items, size=14, gap=9)
+
+    picture_fit(s, os.path.join(FIGS_PAPER, "figD_scale_fnd.png"),
+                2.35, 3.72, 8.6, 3.3)
+    caption(s, 2.35, 6.98, 8.6,
+            "First node death across the nine cells, log scale, colour by "
+            "generation. Field size shifts everything by an order of "
+            "magnitude; node count barely moves it. Two of our five "
+            "pre-registered expectations were wrong, and we report both.")
+
+
+def slide_conclusion(prs):
+    s = blank(prs)
+    header(s, "What holds, what we are not claiming, and what is left",
+           "Conclusion and Remaining Work", 11)
+
+    cols = [
+        ("WHAT HOLDS", TEAL, [
+            "Fairness is structural: the engine owns energy, the protocol "
+            "returns only a cluster structure",
+            "Every conclusion is tested paired, corrected across the family",
+            "The channel retraction and the DQN/GCN contrast are both "
+            "within-class, so the accounting subsidy does not touch them",
+        ]),
+        ("WHAT WE ARE NOT CLAIMING", RUST, [
+            "Centralized protocols are not charged for their uplink. That is "
+            "worth 9 to 10 points of the energy budget",
+            "Transmit power is bracketed at two endpoints, not swept",
+            "No MAC layer, no idle listening, no mobility, no hardware "
+            "testbed",
+        ]),
+        ("WHAT REMAINS", NAVY, [
+            "The control-traffic ablation, which converts our largest "
+            "confound into a measurement",
+            "A three-point or four-point transmit-power sweep",
+            "Paper submission: draft complete at 13 pages, figures and tables "
+            "generated from the data",
+        ]),
+    ]
+    x = 0.62
+    for name, colour, items in cols:
+        rect(s, x, 1.95, 3.86, 0.05, colour)
+        tf = textbox(s, x, 2.2, 3.86, 0.35)
+        write(para(tf, True), name, size=13, color=colour, bold=True, space=0)
+        tf = textbox(s, x, 2.75, 3.86, 3.5)
+        bullets(tf, items, size=14, gap=11, bullet_color=colour)
+        x += 4.13
+
+    rect(s, 0.62, 6.1, 12.1, 0.75, WASH, RULE)
+    tf = textbox(s, 0.95, 6.3, 11.5, 0.5)
+    write(para(tf, True),
+          "The methodological point generalizes: running a study at both "
+          "endpoints of an unspecified parameter, and committing in advance to "
+          "report only what survives both, retracted a comparison that either "
+          "endpoint alone would have supported.",
+          size=14, color=NAVY, bold=True, space=0, line=1.15)
+
+
 def slide_references(prs):
     s = blank(prs)
-    header(s, "References", None, 10)
+    header(s, "References", None, 12)
 
     refs_l = [
         "[1] W. R. Heinzelman, A. Chandrakasan and H. Balakrishnan, "
@@ -608,7 +689,8 @@ def main():
 
     for fn in (slide_title, slide_problem, slide_abstract, slide_intro,
                slide_litsurvey, slide_stack, slide_architecture,
-               slide_prototype, slide_results, slide_references):
+               slide_prototype, slide_results_headline,
+               slide_results_scale, slide_conclusion, slide_references):
         fn(prs)
 
     prs.save(OUT)
